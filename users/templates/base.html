@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{page}}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{% static 'user_admin/img/cafe_logo.png' %}">
+
+    <style>
+      body {
+        color: #fff;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-image: url("{% static 'images/cafe.jpg' %}");
+        background-size: cover;
+        animation: fadeIn 1s ease-in-out;
+      }
+     
+      .bg-container {
+       
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh; /* or 100% if inside a full height body */
+      }
+      #phoneFeedback, #emailFeedback, #password-strength-text{
+        color: #ff4c4c; /* brighter red */
+        font-weight: bold;
+        text-shadow: 0px 0px 2px #000;
+      }
+
+      label,
+      .form-heading,
+      h2 {
+        color: white;
+        font-weight: bold;
+        text-shadow: 0px 0px 2px #000;
+
+      }
+    
+      input,
+      select,
+      .form-control,
+      .form-select {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        color: white !important;
+        border: 1px solid white;
+      }
+    
+      input::placeholder,
+      select option {
+        color: white;
+        background-color: #00000066;
+      }
+    
+      .form-container {
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        padding: 30px;
+        animation: slideUp 1s ease-in-out;
+      }
+    
+      .btn-cafe {
+        background-color: #3e2723;
+        color: #fff;
+      }
+    
+      .btn-cafe:hover {
+        background-color: rgba(0, 0, 0, 0.5);
+        font-size: 17px;
+        font-weight: bold;
+        border: 1px solid white;
+        transition: all 0.7s ease;
+
+      }
+    
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+    
+        to {
+          opacity: 1;
+        }
+      }
+    
+      @keyframes slideUp {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+    
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .text-decoration-none{
+        color: #fff;
+      }
+      .text-decoration-none:hover{
+        font-size: 17px;
+        font-weight: bold;
+        color:#0a0808;
+      }
+    </style>
+    
+</head>
+<body>
+  <div class="bg-container">
+    {% block start %}
+
+    {% endblock %}
+  </div>
+     
+  
+     <script>
+      //for strong password
+      
+      document.addEventListener("DOMContentLoaded", function() {
+          const passwordInput = document.getElementById("password");
+          const strengthText = document.getElementById("password-strength-text");
+  
+          passwordInput.addEventListener("input", function() {
+              const password = passwordInput.value;
+              let strength = "";
+  
+              const lengthCriteria = password.length >= 8;
+              const upperCase = /[A-Z]/.test(password);
+              const lowerCase = /[a-z]/.test(password);
+              const number = /[0-9]/.test(password);
+              const specialChar = /[^A-Za-z0-9]/.test(password);
+  
+              const passedChecks = [lengthCriteria, upperCase, lowerCase, number, specialChar].filter(Boolean).length;
+  
+              if (passedChecks <= 2) {
+                  strength = "<span class='text-danger'>Weak password</span>";
+              } else if (passedChecks === 3 || passedChecks === 4) {
+                  strength = "<span class='text-warning'>Moderate password</span>";
+              } else if (passedChecks === 5) {
+                  strength = "<span class='text-success'>Strong password</span>";
+              }
+  
+              strengthText.innerHTML = strength;
+          });
+      });
+  
+      //for text only in full name field
+      document.addEventListener("DOMContentLoaded", function () {
+      const fullNameInput = document.getElementById("fullname");
+  
+      fullNameInput.addEventListener("input", function () {
+          // Allow only letters and spaces
+          this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+      });
+      });
+  
+    document.addEventListener("DOMContentLoaded", function () {
+  
+    // Email validation
+      const emailInput = document.getElementById("email");
+      const emailFeedback = document.getElementById("emailFeedback");
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+      emailInput.addEventListener("input", function () {
+        if (emailRegex.test(emailInput.value)) {
+          emailFeedback.textContent = "✓ Valid email";
+          emailFeedback.classList.remove("text-danger");
+          emailFeedback.classList.add("text-success");
+        } else {
+          emailFeedback.textContent = "Please enter a valid email address";
+          emailFeedback.classList.remove("text-success");
+          emailFeedback.classList.add("text-danger");
+        }
+      });
+  
+    // Phone number validation
+      const phoneInput = document.getElementById("phone");
+      const phoneFeedback = document.getElementById("phoneFeedback");
+  
+      phoneInput.addEventListener("input", function () {
+        const cleaned = phoneInput.value.replace(/\D/g, '');
+        phoneInput.value = cleaned.slice(0, 10); // restrict to 10 digits
+  
+        if (cleaned.length === 10) {
+          phoneFeedback.textContent = "✓ Valid phone number";
+          phoneFeedback.classList.remove("text-danger");
+          phoneFeedback.classList.add("text-success");
+        } else {
+          phoneFeedback.textContent = "Phone number must be exactly 10 digits";
+          phoneFeedback.classList.remove("text-success");
+          phoneFeedback.classList.add("text-danger");
+        }
+      });
+  
+    });
+  
+  
+  
+      // for confirm password
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirm-password");
+        const errorMsg = document.getElementById("password-error");
+    
+        form.addEventListener("submit", function (e) {
+          if (password.value !== confirmPassword.value) {
+            e.preventDefault();
+            errorMsg.style.display = "block";
+            confirmPassword.classList.add("is-invalid");
+          } else {
+            errorMsg.style.display = "none";
+            confirmPassword.classList.remove("is-invalid");
+          }
+        });
+    
+        // Optional: hide error when user starts typing again
+        confirmPassword.addEventListener("input", function () {
+          errorMsg.style.display = "none";
+          confirmPassword.classList.remove("is-invalid");
+        });
+      });
+  
+      //for view password using eye icon
+      document.addEventListener("DOMContentLoaded", function () {
+        const toggle = (inputId, iconId) => {
+          const input = document.getElementById(inputId);
+          const icon = document.getElementById(iconId);
+  
+          const isPassword = input.getAttribute("type") === "password";
+          input.setAttribute("type", isPassword ? "text" : "password");
+          icon.classList.toggle("bi-eye");
+          icon.classList.toggle("bi-eye-slash");
+        };
+  
+      document.getElementById("togglePassword").addEventListener("click", function () {
+        toggle("password", "togglePasswordIcon");
+      });
+  
+      document.getElementById("toggleConfirmPassword").addEventListener("click", function () {
+        toggle("confirm-password", "toggleConfirmPasswordIcon");
+      });
+    });
+  
+  
+  
+    </script>
+</body>
+</html>

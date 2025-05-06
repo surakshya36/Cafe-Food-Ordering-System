@@ -1,0 +1,43 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="menu-card">
+    {% if item.image %}
+        <img src="{{ item.image.url }}" class="menu-img" alt="{{ item.name }}">
+    {% else %}
+        <img src="{% static 'user_admin/img/placeholder.png' %}" class="menu-img" alt="No image">
+    {% endif %}
+    
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="card-title mb-0">{{ item.name }}</h5>
+            <span class="menu-price">Rs. {{ item.price }}</span>
+        </div>
+        
+        <p class="card-text text-muted small mb-3">{{ item.description|default:"No description available." }}</p>
+        
+        {% if item.vip_status == 'VIP_ONLY' %}
+            <span class="badge vip-badge mb-3">VIP Only</span>
+        {% elif item.vip_status == 'VIP_PRIORITY' %}
+            <span class="badge vip-badge mb-3">VIP Priority</span>
+        {% endif %}
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="prep-time"><i class="bi bi-clock"></i> {{ item.preparation_time }} mins</span>
+            
+            {% if item.is_available %}
+                <form method="post" action="#">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-order">
+                        <i class="bi bi-cart-plus"></i> Add
+                    </button>
+                </form>
+            {% else %}
+                <span class="text-danger small">Out of Stock</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

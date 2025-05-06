@@ -1,0 +1,140 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">⋆｡°✩Stellar Cafe⋆｡°✩</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">  <!-- Changed me-auto to mx-auto for centering -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Menu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+            
+            <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+                <!-- Search Box -->
+                <div class="input-group input-group-outline" style="margin-bottom: -2px;">
+                    <label class="form-label">Search here...</label>
+                    <input type="text" class="form-control">
+                </div>
+                <button class="btn btn-outline-secondary mb-0 ms-2" type="button" style="height: 35px;">
+                    <i class="material-symbols-rounded">search</i>
+                </button>
+                
+                <!-- Cart Icon with Top Badge -->
+                <div class="position-relative ms-3">  <!-- Added margin-left -->
+                    <a class="nav-link p-0" href="#" style="font-size: 1.5rem;">
+                        <i class="material-symbols-rounded">shopping_cart</i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                            3
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold mb-3">Welcome to Stellar Cafe</h1>
+        <p class="lead">
+            Experience premium dining with celestial flavors<br>
+            Where every dish is crafted with stellar quality and care
+        </p>
+        <a href="#menu" class="btn btn-dark btn-lg mt-3">Order Now</a>
+    </div>
+
+    <!-- Menu Section -->
+    <div id="menu" class="mb-5">
+        <h2 class="text-center mb-4 border-bottom pb-2">Our Stellar Menu</h2>
+        
+        <div class="row">
+            {% for item in menu_items %}
+            <div class="col-lg-3 col-md-6 mb-4">  <!-- 4 items per row -->
+                <div class="card h-100 border-0">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}" style="height: 180px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image" style="height: 180px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title">{{ item.name }}</h5>
+                            <span class="text-muted">Rs. {{ item.price }}</span>
+                        </div>
+                        <p class="card-text text-muted small">{{ item.description|default:"No description" }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ item.preparation_time }} mins</small>
+                            <button class="btn btn-sm btn-outline-dark">Add to Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if forloop.counter|divisibleby:4 and not forloop.last %}
+                </div><div class="row">  <!-- Close and open new row every 4 items -->
+            {% endif %}
+            
+            {% empty %}
+            <div class="col-12 text-center py-4">
+                <p class="text-muted">No menu items available</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Navbar Styles */
+    .navbar {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .navbar-brand {
+        letter-spacing: 1px;
+    }
+    .nav-link {
+        font-weight: 500;
+    }
+    
+    /* Card Styles */
+    .card {
+        transition: transform 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    .btn-outline-dark:hover {
+        background-color: #000;
+        color: #fff;
+    }
+    
+    /* General Styles */
+    body {
+        background-color: #fff;
+        color: #000;
+    }
+    .border-bottom {
+        border-color: #eee !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends 'user_admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Success/Error Messages -->
+{% if messages %}
+<div class="position-fixed top-1 end-1" style="z-index: 9999; width: 300px;">
+    {% for message in messages %}
+    <div class="toast show align-items-center text-white 
+                {% if message.tags == 'success' %}bg-success{% else %}bg-danger{% endif %} 
+                border-0 mb-2" role="alert">
+        <div class="d-flex">
+            <div class="toast-body small">
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Update Category</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 col-md-10">
+                                <form method="post" class="p-3">
+                                    {% csrf_token %}
+                                    
+                                    <!-- Category Name -->
+                                    <div class="input-group input-group-outline mb-4 {% if form.errors.name %}is-invalid{% endif %}">
+                                        <label class="form-label">Category Name *</label>
+                                        <input type="text" 
+                                               class="form-control {% if form.errors.name %}is-invalid{% endif %}" 
+                                               name="name" 
+                                               value="{{ request.POST.name|default:category.name }}"
+                                               required
+                                               maxlength="50">
+                                    </div>
+                                    {% if form.errors.name %}
+                                    <div class="text-danger text-xs mb-3">
+                                        {{ form.errors.name.0 }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <!-- Description -->
+                                    <div class="input-group input-group-outline mb-4">
+                                        <textarea class="form-control" 
+                                                  placeholder="Enter category description..."
+                                                  name="description"
+                                                  rows="3">{{ request.POST.description|default:category.description }}</textarea>
+                                    </div>
+                                    
+                                    <!-- Display Order -->
+                                    <div class="input-group input-group-outline mb-4 {% if form.errors.display_order %}is-invalid{% endif %}">
+                                        <label class="form-label">Display Order *</label>
+                                        <input type="number" 
+                                               class="form-control {% if form.errors.display_order %}is-invalid{% endif %}" 
+                                               name="display_order" 
+                                               value="{{ request.POST.display_order|default:category.display_order }}"
+                                               min="0"
+                                               required>
+                                    </div>
+                                    {% if form.errors.display_order %}
+                                    <div class="text-danger text-xs mb-3">
+                                        {{ form.errors.display_order.0 }}
+                                    </div>
+                                    {% endif %}
+                                    <!-- Category Type -->
+                                    <div class="input-group input-group-outline mb-4 {% if form.errors.category_type %}is-invalid{% endif %}">
+                                        <select class="form-select form-control {% if form.errors.category_type %}is-invalid{% endif %}" 
+                                                name="category_type" required>
+                                            <option value="">-- Select Category Type --</option>
+                                            <option value="VIP" {% if request.POST.category_type == "VIP" or category.category_type == "VIP" %}selected{% endif %}>VIP Items</option>
+                                            <option value="NORMAL" {% if request.POST.category_type == "NORMAL" or category.category_type == "NORMAL" %}selected{% endif %}>Normal Items</option>
+                                        </select>
+                                    </div>
+                                    {% if form.errors.category_type %}
+                                    <div class="text-danger text-xs mb-3">
+                                        {{ form.errors.category_type.0 }}
+                                    </div>
+                                    {% endif %}
+
+
+
+                                    <!-- Active Status -->
+                                    <div class="form-check form-switch d-flex align-items-center mb-4">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               name="is_active" 
+                                               id="is_active"
+                                               {% if request.POST.is_active|default:category.is_active|yesno:"1,0" %}checked{% endif %}>
+                                        <label class="form-check-label ms-3" for="is_active">
+                                            Active
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Form Actions -->
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <a href="{% url 'available_categories' %}" class="btn btn-outline-secondary me-2">
+                                            <i class="material-symbols-rounded">cancel</i> Cancel
+                                        </a>
+                                        <button type="submit" class="btn bg-gradient-dark">
+                                            <i class="material-symbols-rounded me-1">save</i>
+                                            Update Category
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss messages after 3 seconds
+    setTimeout(function() {
+        var toasts = document.querySelectorAll('.toast');
+        toasts.forEach(function(toast) {
+            var bsToast = new bootstrap.Toast(toast);
+            bsToast.hide();
+        });
+    }, 3000);
+    
+    // Initialize Material Dashboard input effects
+    const inputs = document.querySelectorAll('.input-group-outline input, .input-group-outline textarea');
+    inputs.forEach(input => {
+        // Initialize filled state
+        if (input.value) {
+            input.parentNode.classList.add('is-filled');
+        }
+        
+        input.addEventListener('focus', function() {
+            this.parentNode.classList.add('is-focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentNode.classList.remove('is-focused');
+        });
+    });
+});
+</script>
+{% endblock %} 

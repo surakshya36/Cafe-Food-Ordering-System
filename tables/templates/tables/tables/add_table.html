@@ -1,0 +1,146 @@
+{% extends 'user_admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Messages -->
+{% if messages %}
+<div class="position-fixed top-1 end-1" style="z-index: 9999; width: 300px;">
+    {% for message in messages %}
+    <div class="toast show align-items-center text-white 
+                {% if message.tags == 'success' %}bg-success{% else %}bg-danger{% endif %} 
+                border-0 mb-2" role="alert">
+        <div class="d-flex">
+            <div class="toast-body small">
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Add New Table</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 col-md-10">
+                                <form method="post" class="p-3">
+                                    {% csrf_token %}
+
+                                    <div class="row">
+                                        <!-- Room -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <select name="room" class="form-select" required>
+                                                    <option value="">-- Select Room --</option>
+                                                    {% for room in rooms %}
+                                                    <option value="{{ room.id }}">{{ room.name }} ({{ room.get_room_type_display }})</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Table Number -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <label class="form-label">Table Number *</label>
+                                                <input type="text" class="form-control" name="table_number" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Seats -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <label class="form-label">Seats *</label>
+                                                <input type="number" min="1" class="form-control" name="seats" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <select name="status" class="form-select" required>
+                                                    <option value="" >--Select Status --</option>
+                                                    <option value="AVAILABLE" >--Available--</option>
+                                                    <option value="OCCUPIED">--Occupied--</option>
+                                                    <option value="RESERVED">--Reserved--</option>
+                                                    <option value="MAINTENANCE">--Maintenance--</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- X Position
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <label class="form-label">X Position</label>
+                                                <input type="number" step="0.01" class="form-control" name="x_position">
+                                            </div>
+                                        </div>
+
+                                         Y Position 
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <label class="form-label">Y Position</label>
+                                                <input type="number" step="0.01" class="form-control" name="y_position">
+                                            </div>
+                                        </div>
+                                    </div> -->
+
+                                    <!-- Submit and Cancel Buttons -->
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <a href="{% url 'available_tables' %}" class="btn btn-outline-secondary me-3">
+                                            <i class="material-symbols-rounded me-1">cancel</i> Cancel
+                                        </a>
+                                        <button type="submit" class="btn bg-gradient-dark">
+                                            <i class="material-symbols-rounded me-1">add</i> Add Table
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss messages after 5 seconds
+    setTimeout(function() {
+        var toasts = document.querySelectorAll('.toast');
+        toasts.forEach(function(toast) {
+            var bsToast = new bootstrap.Toast(toast);
+            bsToast.hide();
+        });
+    }, 5000);
+    
+    // Update form label classes when fields are filled
+    const inputs = document.querySelectorAll('.input-group-outline input, .input-group-outline textarea, .input-group-outline select');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value) {
+                this.parentElement.classList.add('is-filled');
+            } else {
+                this.parentElement.classList.remove('is-filled');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

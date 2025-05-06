@@ -1,0 +1,138 @@
+{% extends 'user_admin/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Success/Error Messages -->
+{% if messages %}
+<div class="position-fixed end-0 mt-5" style="z-index: 9999; top: 70px;">
+    {% for message in messages %}
+    <div class="alert alert-dismissible fade show mx-3
+                {% if message.tags == 'success' %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}" 
+         role="alert">
+        <span class="text-white">{{ message }}</span>
+        <button type="button" class="btn-close text-white" data-bs-dismiss="alert" aria-label="Close">
+            <i class="material-symbols-rounded">close</i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Available Menu Items</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center justify-content-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">S.N.</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Item</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Category</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Price</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">VIP Status</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Quantity</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in menu_items %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <p class="text-xs font-weight-bold mb-0">{{ forloop.counter }}</p>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex px-2">
+                                            <div>
+                                                {% if item.image %}
+                                                <img src="{{ item.image.url }}" class="img-fluid shadow"   style="width: 50px; height: 50px; object-fit: cover; border-radius: 10px;" alt="{{ item.name }}">
+                                                {% else %}
+                                                <div class="avatar avatar-sm me-3 bg-gradient-dark">
+                                                    <i class="material-symbols-rounded text-white">fastfood</i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="my-auto">
+                                                <h6 class="mb-0 text-sm">{{ item.name }}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{ item.description|truncatechars:30|default:"-" }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-sm 
+                                            {% if item.category.category_type == 'VIP' %}bg-gradient-warning{% else %}bg-gradient-info{% endif %}">
+                                            {{ item.category.name }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <p class="text-sm font-weight-bold mb-0">Rs. {{ item.price }}</p>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-sm 
+                                            {% if item.vip_status == 'VIP_ONLY' %}bg-gradient-danger
+                                            {% elif item.vip_status == 'VIP_PRIORITY' %}bg-gradient-warning
+                                            {% else %}bg-gradient-success{% endif %}">
+                                            {{ item.get_vip_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <p class="text-sm mb-0">{{ item.quantity }}</p>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-sm {% if item.is_available %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}">
+                                            {% if item.is_available %}Available{% else %}Unavailable{% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <a href="{% url 'view_item' item.id %}" class="btn btn-sm bg-gradient-primary me-1 mb-0" title="View">
+                                            <i class="material-symbols-rounded text-sm">visibility</i>
+                                        </a>
+                                        <a href="{% url 'update_item' item.id %}" class="btn btn-sm bg-gradient-info me-1 mb-0" title="Edit">
+                                            <i class="material-symbols-rounded text-sm">edit</i>
+                                        </a>
+                                        <a href="{% url 'delete_item' item.id %}" class="btn btn-sm bg-gradient-danger mb-0" title="Delete">
+                                            <i class="material-symbols-rounded text-sm">delete</i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">No menu items available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fixed-plugin">
+    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2" title="Add new Menu Item" href="{% url 'add_item' %}">
+        <i class="material-symbols-rounded py-2">add</i>
+    </a>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}

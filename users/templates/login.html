@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block start %}
+<div id="login" class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="form-container">
+          <h2 class="text-center form-heading mb-4"> Log In</h2>
+          <form method="post" >
+            {% csrf_token %}
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+              {% endfor %}
+            {% endif %}
+
+            <div class="mb-3">
+              <label for="login-username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="login-email" name="username" required>
+            </div>
+            <div class="mb-3 position-relative">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" required>
+                <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                  <i class="bi bi-eye-slash" id="togglePasswordIcon"></i>
+                </span>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-cafe w-100">Login</button>
+            <div class="text-center mt-3">
+              <a href="#" class="text-decoration-none" >Forgot Password?</a> 
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}

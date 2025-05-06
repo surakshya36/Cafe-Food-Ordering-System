@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block start %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="form-container">
+          <h2 class="text-center form-heading mb-4">Staff Registration</h2>
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="fullname" class="form-label">Full Name</label>
+              <input type="text" class="form-control" name="full_name" id="fullname" required pattern="[A-Za-z ]+" title="Only letters and spaces are allowed">
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Gender</label>
+                <select class="form-select" id="gender" name="gender">
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="phone" class="form-label">Phone</label>
+                <input type="tel" class="form-control" id="phone" name="phone" required pattern="\d{10}" maxlength="10" minlength="10" title="Phone number must be exactly 10 digits">
+                <div id="phoneFeedback" class="form-text text-danger"></div>
+
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+              <div id="emailFeedback" class="form-text text-danger"></div>
+
+            </div>
+      
+            <div class="mb-3 position-relative">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" required>
+                <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                  <i class="bi bi-eye-slash" id="togglePasswordIcon"></i>
+                </span>
+              </div>
+              <div id="password-strength-text" class="form-text text-muted mt-1"></div>
+            </div>
+            
+            <div class="mb-3 position-relative">
+              <label for="confirm-password" class="form-label">Confirm Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="confirm-password" required>
+                <span class="input-group-text" id="toggleConfirmPassword" style="cursor: pointer;">
+                  <i class="bi bi-eye-slash" id="toggleConfirmPasswordIcon"></i>
+                </span>
+              </div>
+              <div id="password-error"  style="display: none;color: #ff4c4c; /* brighter red */
+              font-weight: bold;
+              text-shadow: 0px 0px 2px #000">
+                Passwords do not match.
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Role</label>
+              <input type="text" class="form-control" value="Staff" readonly>
+            </div>
+            <button type="submit" class="btn btn-cafe w-100">Register</button>
+            <div class="text-center mt-3">
+              <a href="/login/" class="text-decoration-none" >Already have an account? Login here</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+
+{% endblock %}
