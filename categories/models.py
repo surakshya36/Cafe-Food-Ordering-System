@@ -1,19 +1,13 @@
 from django.db import models
 
 class Category(models.Model):
-    CATEGORY_TYPES = (
-        ('VIP', 'VIP Items'),
-        ('NORMAL', 'Normal Items'),
-        
-    )
-    
+ 
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
     display_order = models.PositiveSmallIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     category_type = models.CharField(
         max_length=10, 
-        choices=CATEGORY_TYPES, 
         default='NORMAL',
         help_text="VIP items are only available in VIP rooms"
     )

@@ -23,7 +23,10 @@
   <link id="pagestyle" href="{% static 'website/css/material-dashboard.css' %}?v=3.2.0" rel="stylesheet" />
 </head>
 <body>
+  {% include 'website/navbar.html' %}
+
   {% block content %}
+    
   
   {% endblock %}
 
@@ -45,6 +48,12 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Material Dashboard -->
   <script src="{% static 'website/js/material-dashboard.min.js' %}?v=3.2.0"></script>
+  <!-- JavaScript for Today's Special -->
 
+  <style>
+    body{
+      background-color: #e6e5e5;
+    }
+  </style>
 </body>
 </html>

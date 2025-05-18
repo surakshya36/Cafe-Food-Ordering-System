@@ -38,7 +38,6 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">S.N.</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Name</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Description</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Action</th>
                                 </tr>
@@ -57,9 +56,7 @@
                                     <td>
                                         <p class="text-sm mb-0">{{ category.description|default:"-" }}</p>
                                     </td>
-                                    <td>
-                                        <p class="text-sm mb-0">{{ category.get_category_type_display }}</p>
-                                    </td>                                    
+                                                                      
                                     <td>
                                         <span class="badge badge-sm {% if category.is_active %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}">
                                             {% if category.is_active %}Active{% else %}Inactive{% endif %}

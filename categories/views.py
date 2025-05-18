@@ -2,7 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import IntegrityError
 from .models import Category
+from django.contrib.auth.decorators import login_required
 
+
+@login_required(login_url='/login/')
 def display_categories(request):
     categories = Category.objects.all().order_by('display_order', 'name')
     return render(request, 'categories/display_categories.html', {
@@ -11,13 +14,13 @@ def display_categories(request):
         'categories': categories
     })
 
+@login_required(login_url='/login/')
 def add_category(request):
     if request.method == "POST":
         name = request.POST.get('name')
         description = request.POST.get('description', '')
         display_order = request.POST.get('display_order', 0)
         is_active = request.POST.get('is_active') == 'on'
-        category_type = request.POST.get('category_type', 'NORMAL')
 
         # Validation
         if not name:
@@ -45,7 +48,6 @@ def add_category(request):
                 description=description,
                 display_order=display_order,
                 is_active=is_active,
-                category_type=category_type
             )
             messages.success(request, "Category added successfully!")
             return redirect('available_categories')
@@ -63,9 +65,9 @@ def add_category(request):
     return render(request, 'categories/add_category.html', {
         'page': 'Add new Category',
         'current_section': 'Categories / Add new Category',
-        'category_types': Category.CATEGORY_TYPES
     })
 
+@login_required(login_url='/login/')
 def update_category(request, id):
     category = get_object_or_404(Category, id=id)
     
@@ -74,7 +76,6 @@ def update_category(request, id):
         description = request.POST.get('description', '')
         display_order = request.POST.get('display_order', 0)
         is_active = request.POST.get('is_active') == 'on'
-        category_type = request.POST.get('category_type', 'NORMAL')
 
         # Basic validation
         if not name:
@@ -105,7 +106,6 @@ def update_category(request, id):
         category.description = description
         category.display_order = display_order
         category.is_active = is_active
-        category.category_type = category_type
         category.save()
         
         messages.success(request, "Category updated successfully!")
@@ -115,7 +115,6 @@ def update_category(request, id):
         'page': 'Update Category',
         'category': category,
         'current_section': 'Categories / Update Category',
-        'category_types': Category.CATEGORY_TYPES
     })
 
 # def view_category(request, id):
@@ -128,7 +127,7 @@ def update_category(request, id):
 #         'menu_items': menu_items,
 #         'current_section': 'Categories / View Category'
 #     })
-
+@login_required(login_url='/login/')
 def delete_category(request, id):
     category = get_object_or_404(Category, id=id)
     
@@ -145,7 +144,7 @@ def delete_category(request, id):
         except Exception as e:
             messages.error(request, f"Error deleting category: {str(e)}")
         
-        return redirect('display_categories')
+        return redirect('available_categories')
     
     return render(request, 'categories/confirm_delete.html', {
         'page': 'Confirm Delete',

@@ -60,8 +60,8 @@
                                         <!-- Quantity -->
                                         <div class="col-md-6">
                                             <div class="input-group input-group-outline mb-4">
-                                                <label class="form-label">Quantity *</label>
-                                                <input type="number" min="0" class="form-control" name="quantity" required value="{{ menu_item.quantity }}">
+                                                <label class="form-label">Quantity </label>
+                                                <input type="number" min="0" class="form-control" name="quantity"  value="{{ menu_item.quantity }}">
                                             </div>
                                         </div>
                                     </div>
@@ -83,7 +83,7 @@
                                                     {% for cat in categories %}
                                                     <option value="{{ cat.id }}" 
                                                             {% if cat.id == menu_item.category.id %}selected{% endif %}>
-                                                        {{ cat.name }} ({{ cat.get_category_type_display }})
+                                                        {{ cat.name }}
                                                     </option>
                                                     {% endfor %}
                                                 </select>
@@ -91,16 +91,23 @@
                                         </div>
                                     </div>
 
-                                    <!-- VIP Status Indicator -->
-                                    <div class="alert {% if menu_item.is_vip_item %}alert-warning{% else %}alert-info{% endif %} mb-4">
-                                        <div class="d-flex align-items-center">
-                                            <i class="material-symbols-rounded me-2">info</i>
-                                            <span>
-                                                Current VIP Status: <strong>{{ menu_item.get_vip_status_display }}</strong>
-                                                (automatically set based on category)
-                                            </span>
-                                        </div>
+                                                                        <!-- VIP Status Selection -->
+                                    <div class="input-group input-group-outline mb-4">
+                                        <label class="form-label">VIP Status *</label>
+                                        <select name="vip_status" id="vip_status" class="form-select" required>
+                                            <option value="">-- Select VIP Status --</option>
+                                            <option value="REGULAR" {% if menu_item.vip_status == "REGULAR" %}selected{% endif %}>
+                                                Regular Item
+                                            </option>
+                                            <option value="VIP_ONLY" {% if menu_item.vip_status == "VIP_ONLY" %}selected{% endif %}>
+                                                VIP Exclusive
+                                            </option>
+                                            <option value="TODAYS_SPECIAL" {% if menu_item.vip_status == "TODAYS_SPECIAL" %}selected{% endif %}>
+                                                Today's Special
+                                            </option>
+                                        </select>
                                     </div>
+
 
                                     <!-- Image Upload -->
                                     <div class="input-group input-group-outline mb-4">

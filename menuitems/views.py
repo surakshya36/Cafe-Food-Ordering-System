@@ -4,7 +4,9 @@ from django.contrib import messages
 from .models import MenuItem
 from categories.models import Category
 from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='/login/')
 def available_items(request):
     items = MenuItem.objects.all().order_by('category__display_order', 'name')
     return render(request, 'menuitems/available_items.html', {
@@ -13,6 +15,7 @@ def available_items(request):
         'current_section': 'Menu-Items',
     })
 
+@login_required(login_url='/login/')
 def view_item(request, id):
     queryset = MenuItem.objects.get(id = id)
     
@@ -21,7 +24,7 @@ def view_item(request, id):
         'current_section': 'View-Menu-Item',
         'menu_items':queryset
     })
-
+@login_required(login_url='/login/')
 def update_item(request, item_id):
     try:
         menu_item = MenuItem.objects.get(pk=item_id)
@@ -39,6 +42,7 @@ def update_item(request, item_id):
         quantity = request.POST.get('quantity', 0)
         preparation_time = request.POST.get('preparation_time', 15)
         image = request.FILES.get('image')
+        vip_status = request.POST.get('vip_status', 'REGULAR')  # Get VIP status from form
 
         # Validation
         if not name or not price or not category_id:
@@ -89,12 +93,12 @@ def update_item(request, item_id):
             menu_item.is_available = is_available
             menu_item.quantity = quantity
             menu_item.preparation_time = preparation_time
+            menu_item.vip_status = vip_status  # Set VIP status
             
             # Only update image if a new one was provided
             if image:
                 menu_item.image = image
             
-            # VIP status will be automatically updated in save() method
             menu_item.save()
             
             messages.success(request, "Menu item updated successfully!")
@@ -107,35 +111,33 @@ def update_item(request, item_id):
     return render(request, 'menuitems/update_item.html', {
         'menu_item': menu_item,
         'categories': categories,
+        'vip_status_choices': MenuItem.VIP_STATUS_CHOICES,  # Pass choices to template
         'page': 'Update Menu Item',
         'current_section': 'Menu / Update Item',
     })
-
-def delete_item(request, id):
-    item = get_object_or_404(MenuItem, id=id)
-
-    if request.method == "POST":
-        item.delete()
-        return redirect('available_items')  # Replace with your actual redirect URL name
-
-    return render(request, 'menuitems/confirm_delete.html', {
-        'page': 'Delete Menu Item',
-        'item': item,
-        'current_section': 'Menu / Delete Item',
-    })
-
+@login_required(login_url='/login/')
 def add_item(request):
     if request.method == "POST":
         name = request.POST.get('name')
         description = request.POST.get('description', '')
         price = request.POST.get('price')
         category_id = request.POST.get('category')
-        is_available = request.POST.get('is_available') == 'on'
         quantity = request.POST.get('quantity', 0)
+        vip_status = request.POST.get('vip_status', 'REGULAR')  # Get VIP status from form
+        
+        try:
+            quantity = int(quantity)
+            if quantity < 0:
+                raise ValueError("Quantity must be non-negative")
+        except ValueError:
+            messages.error(request, "Quantity must be a valid non-negative integer")
+            return redirect('add_item')
+
+        is_available = quantity > 0 and request.POST.get('is_available') == 'on'
         preparation_time = request.POST.get('preparation_time', 15)
         image = request.FILES.get('image')
 
-        # Validation (keep your existing validation code)
+        # Validation
         if not name or not price or not category_id:
             messages.error(request, "Name, price, and category are required")
             return redirect('add_item')
@@ -176,7 +178,7 @@ def add_item(request):
             return redirect('add_item')
 
         try:
-            # Create the menu item - vip_status will be set automatically in save()
+            # Create the menu item with VIP status
             menu_item = MenuItem(
                 name=name,
                 description=description,
@@ -185,9 +187,9 @@ def add_item(request):
                 is_available=is_available,
                 quantity=quantity,
                 preparation_time=preparation_time,
-                image=image
+                image=image,
+                vip_status=vip_status  # Set VIP status
             )
-            # No need to set vip_status here - it will be handled in save()
             menu_item.save()
             
             messages.success(request, "Menu item added successfully!")
@@ -202,6 +204,20 @@ def add_item(request):
     categories = Category.objects.filter(is_active=True).order_by('display_order')
     return render(request, 'menuitems/add_item.html', {
         'categories': categories,
+        'vip_status_choices': MenuItem.VIP_STATUS_CHOICES,  # Pass choices to template
         'page': 'Add new Menu Item',
         'current_section': 'Menu / Add new Item',
+    })
+@login_required(login_url='/login/')
+def delete_item(request, id):
+    item = get_object_or_404(MenuItem, id=id)
+
+    if request.method == "POST":
+        item.delete()
+        return redirect('available_items')  # Replace with your actual redirect URL name
+
+    return render(request, 'menuitems/confirm_delete.html', {
+        'page': 'Delete Menu Item',
+        'item': item,
+        'current_section': 'Menu / Delete Item',
     })

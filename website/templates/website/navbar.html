@@ -1,0 +1,60 @@
+
+{% load static %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}">⋆｡°✩Stellar Cafe⋆｡°✩</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}#todays_special">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}#menucontrol">Menu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+            
+            <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+                <form action="" class="d-flex align-items-center">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" placeholder="Search here..." value="{{ search_term|default:'' }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="material-symbols-rounded">search</i>
+                        </button>
+                    </div>
+                </form>
+
+                
+                <div class="position-relative ms-3">
+                    <a class="nav-link p-0" href="#" style="font-size: 1.5rem;">
+                        <i class="material-symbols-rounded">shopping_cart</i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                            3
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<style>
+    .form-control, .btn-outline-secondary {
+    border: 1px solid #ced4da !important;
+    height: 45px;
+    border-radius: 5px !important;
+}
+    .form-control{
+        text-align: center;
+        margin-right: 5px;
+        
+    }
+</style>

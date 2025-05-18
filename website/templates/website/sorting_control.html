@@ -1,0 +1,132 @@
+{% load static %}
+ <!-- Sticky Sort Controls -->
+   <div class="sticky-sort-controls" style="position: sticky; top: 90px; z-index: 1000;" id="menucontrol">
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body py-2">
+                        <div class="d-flex flex-wrap justify-content-center align-items-center">
+                            <div class="me-3 mb-2">
+                                <select class="form-select form-select-sm" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="me-3 mb-2">
+                                <select class="form-select form-select-sm" id="algorithmSelect">
+                                    <option value="price">Price</option>
+                                    <option value="name">Name</option>
+                                    <option value="time">Prep Time</option>
+                                </select>
+                            </div>
+                            
+                            <button id="applySort" class="btn btn-dark btn-sm mb-2">
+                                <i class="material-symbols-rounded me-1">sort</i> Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- JavaScript for Sorting -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const applyBtn = document.getElementById('applySort');
+    const container = document.getElementById('menuContainer');
+    const allItems = Array.from(container.querySelectorAll('.menu-item')); // ✅ Store all menu items on load
+
+    applyBtn.addEventListener('click', sortMenu);
+
+    function sortMenu() {
+        const categoryId = document.getElementById('categoryFilter').value;
+        const algorithm = document.getElementById('algorithmSelect').value;
+        const noItemsMessage = document.getElementById('noItemsMessage');  // ← Get the message element
+
+        // Always start from allItems (not from already filtered DOM)
+        let filteredItems = [...allItems];
+
+        // Filter by category
+        if (categoryId) {
+            filteredItems = filteredItems.filter(item => 
+                item.dataset.category === categoryId
+            );
+        }
+
+        // Apply selected algorithm
+        switch (algorithm) {
+            case 'price':
+                bubbleSortByPrice(filteredItems);
+                break;
+            case 'name':
+                insertionSortByName(filteredItems);
+                break;
+            case 'time':
+                selectionSortByTime(filteredItems);
+                break;
+        }
+
+        // Clear container and handle display
+        container.innerHTML = '';
+
+        if (filteredItems.length > 0) {
+            noItemsMessage.style.display = 'none';
+            filteredItems.forEach(item => container.appendChild(item));
+        } else {
+            noItemsMessage.style.display = 'block';
+        }
+    }
+
+    function bubbleSortByPrice(items) {
+        let n = items.length;
+        for (let i = 0; i < n-1; i++) {
+            for (let j = 0; j < n-i-1; j++) {
+                if (parseFloat(items[j].dataset.price) > parseFloat(items[j+1].dataset.price)) {
+                    [items[j], items[j+1]] = [items[j+1], items[j]];
+                }
+            }
+        }
+    }
+
+    function insertionSortByName(items) {
+        for (let i = 1; i < items.length; i++) {
+            let current = items[i];
+            let j = i - 1;
+            while (j >= 0 && items[j].dataset.name > current.dataset.name) {
+                items[j + 1] = items[j];
+                j--;
+            }
+            items[j + 1] = current;
+        }
+    }
+
+    function selectionSortByTime(items) {
+        for (let i = 0; i < items.length; i++) {
+            let minIdx = i;
+            for (let j = i + 1; j < items.length; j++) {
+                if (parseInt(items[j].dataset.time) < parseInt(items[minIdx].dataset.time)) {
+                    minIdx = j;
+                }
+            }
+            if (minIdx !== i) {
+                [items[i], items[minIdx]] = [items[minIdx], items[i]];
+            }
+        }
+    }
+});
+</script>
+
+<style>
+    .form-select-sm {
+        width: 180px;
+    }
+    #applySort {
+        min-width: 120px;
+    }
+    .menu-item {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+</style>

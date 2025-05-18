@@ -5,7 +5,8 @@ class MenuItem(models.Model):
     VIP_STATUS_CHOICES = (
         ('REGULAR', 'Regular Item'),
         ('VIP_ONLY', 'VIP Exclusive'),
-        ('VIP_PRIORITY', 'VIP Priority'),
+        ('TODAYS_SPECIAL', "Today's Special"),
+        
     )
     
     name = models.CharField(max_length=100, unique=True)
@@ -16,10 +17,10 @@ class MenuItem(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to="menu_items/") 
     vip_status = models.CharField(
-        max_length=12,
+        max_length=25,
         choices=VIP_STATUS_CHOICES,
         default='REGULAR',
-        help_text="Automatically set based on category type (VIP/NORMAL)"
+        help_text="Manually set  (VIP/NORMAL)"
     )
     preparation_time = models.PositiveIntegerField(
         default=15,
@@ -76,23 +77,11 @@ class MenuItem(models.Model):
             self.save(update_fields=['is_available'])
 
     def save(self, *args, **kwargs):
-        """
-        Automatically sets vip_status based on category type:
-        - VIP category becomes VIP_ONLY
-        - NORMAL category becomes REGULAR
-        Also handles availability based on quantity
-        """
+      
         # Ensure we have the latest category data if this is an existing instance
         if self.pk:
             self.category.refresh_from_db()
         
-        # Set VIP status based on category type
-        if self.category.category_type == 'VIP':
-            if not self.is_vip_item:  # Only change if not already a VIP item
-                self.vip_status = 'VIP_ONLY'
-        else:  # NORMAL category
-            if self.is_vip_item:  # Only change if currently a VIP item
-                self.vip_status = 'REGULAR'
         
         # Handle availability based on quantity
         if self.quantity == 0 and self.is_available:

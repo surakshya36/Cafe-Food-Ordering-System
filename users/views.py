@@ -83,7 +83,7 @@ def login_user(request):
             if user.role == "admin":
                 return redirect("/admin-dashboard/")
             elif user.role == "staff":
-                return redirect("/staff-dashboard/")
+                return redirect("staff_dashboard")
             else:
                 messages.error(request, "Unknown role.")
                 return redirect("/login/")

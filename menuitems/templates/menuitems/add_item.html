@@ -60,8 +60,8 @@
                                         <!-- Quantity -->
                                         <div class="col-md-6">
                                             <div class="input-group input-group-outline mb-4">
-                                                <label class="form-label">Quantity *</label>
-                                                <input type="number" min="0" class="form-control" name="quantity" required value="{{ request.POST.quantity|default:'0' }}">
+                                                <label class="form-label">Quantity </label>
+                                                <input type="number" min="0" class="form-control" name="quantity"  value="{{ request.POST.quantity|default:'0' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -84,21 +84,32 @@
                                                     <option value="{{ cat.id }}" 
                                                             data-category-type="{{ cat.category_type }}"
                                                             {% if request.POST.category == cat.id|stringformat:'s' %}selected{% endif %}>
-                                                        {{ cat.name }} ({{ cat.get_category_type_display }})
+                                                        {{ cat.name }}
                                                     </option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
                                         </div>
                                     </div>
-
-                                 <!-- VIP Status Indicator -->
-                                    <div class="alert mb-4 text-white" id="vip-status-indicator" style="background-color: #111;">
-                                        <div class="d-flex align-items-center">
-                                            <i class="material-icons me-2">info</i>
-                                            <span id="vip-status-text">Select a category to determine VIP status</span>
-                                        </div>
+                                                                        <!-- VIP Status -->
+                                    <!-- VIP Status -->
+                                    <div class="input-group input-group-outline mb-4">
+                                        <select name="vip_status" id="vip_status" class="form-select" required>
+                                            <option value="">-- Select VIP Status --</option>
+                                            <option value="REGULAR"
+                                                {% if request.POST.vip_status == "REGULAR" %}selected{% endif %}>
+                                                Regular Item
+                                            </option>
+                                            <option value="VIP_ONLY"
+                                                {% if request.POST.vip_status == "VIP_ONLY" %}selected{% endif %}>
+                                                VIP Exclusive
+                                            </option>
+                                            <option value="TODAYS_SPECIAL" {% if request.POST.vip_status == "TODAYS_SPECIAL" %}selected{% endif %}>
+                                                Today's Special
+                                            </option>
+                                        </select>
                                     </div>
+
 
                                     <!-- Image Upload -->
                                     <div class="input-group input-group-outline mb-4">

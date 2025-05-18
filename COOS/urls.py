@@ -33,16 +33,12 @@ urlpatterns = [
     path('register-staff/', register_staff, name = "register_staff"),
     path('login/', login_user, name = "login"),
     path('logout/', logout_view, name = "logout"),
-
-    path('staff-dashboard/', staff_dashboard, name="staff_dasboard" ),
     path('admin-dashboard/', admin_dashboard, name="admin_dashboard" ),
     path('categories/', include('categories.urls')),
     path('menuitems/', include('menuitems.urls')),
     path('tables/', include('tables.urls')),
     path('website/', include('website.urls')),
-
-
-
+    path('user-staff/', include('user_staff.urls')),
 
 ]
 

@@ -67,17 +67,7 @@
                                                value="{{ request.POST.display_order|default_if_none:'' }}">
                                     </div>
 
-                                    <!-- Category Type -->
-                                    <div class="input-group input-group-outline mb-4">
-                                        <select name="category_type" class="form-select form-control ">
-                                            <option value="">-- Select Category Type --</option>
-                                            {% for value, label in category_types %}
-                                                <option value="{{ value }}" {% if request.POST.category_type == value %}selected{% endif %}>
-                                                    {{ label }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
+                        
                                     
                                     <!-- Active Status -->
                                     <div class="form-check form-switch d-flex align-items-center mb-4">

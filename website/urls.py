@@ -8,7 +8,8 @@ urlpatterns = [
     # path('update-category/<id>/', views.update_category, name='update_category'),
     # path('delete-category/<id>/', views.delete_category, name='delete_category'),
     path('menu/', views.menu_for_customers, name='customer_menu'),
-    path('menu-item/', views.menu_view, name='menu_view'),
+    path('', views.menu_for_customers, name='home'),
+   
 
 
 
