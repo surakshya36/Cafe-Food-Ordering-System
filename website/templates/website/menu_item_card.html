@@ -3,41 +3,200 @@
 
 {% block content %}
 
-<div class="menu-card">
-    {% if item.image %}
-        <img src="{{ item.image.url }}" class="menu-img" alt="{{ item.name }}">
-    {% else %}
-        <img src="{% static 'user_admin/img/placeholder.png' %}" class="menu-img" alt="No image">
-    {% endif %}
-    
-    <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="card-title mb-0">{{ item.name }}</h5>
-            <span class="menu-price">Rs. {{ item.price }}</span>
+<div class="container mt-4">
+    <!-- Main Item Card - Side by Side Layout -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="menu-card d-flex">
+                <!-- Image on Left - Fixed Size Container -->
+                <div class="menu-img-container">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="menu-img" alt="{{ item.name }}">
+                    {% else %}
+                        <img src="{% static 'user_admin/img/placeholder.png' %}" class="menu-img" alt="No image">
+                    {% endif %}
+                </div>
+                
+                <!-- Details on Right -->
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ item.name }}</h5>
+                        <span class="menu-price">Rs. {{ item.price }}</span>
+                    </div>
+                    
+                    {% if item.vip_status == 'VIP_ONLY' %}
+                        <span class="badge vip-badge mb-3">VIP Only</span>
+                    {% elif item.vip_status == 'VIP_PRIORITY' %}
+                        <span class="badge vip-badge mb-3">VIP Priority</span>
+                    {% endif %}
+                    
+                    <p class="card-text text-muted mb-4">{{ item.description|default:"No description available." }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="prep-time"><i class="bi bi-clock"></i> {{ item.preparation_time }} mins</span>
+                        
+                        {% if item.is_available %}
+                            
+                                <button type="submit" class="btn btn-order" value="{{item.id}}">
+                                    <span class="material-symbols-rounded">shopping_cart</span> Add to Order
+                                </button>
+                            
+                        {% else %}
+                            <span class="text-danger small">Out of Stock</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <p class="card-text text-muted small mb-3">{{ item.description|default:"No description available." }}</p>
-        
-        {% if item.vip_status == 'VIP_ONLY' %}
-            <span class="badge vip-badge mb-3">VIP Only</span>
-        {% elif item.vip_status == 'VIP_PRIORITY' %}
-            <span class="badge vip-badge mb-3">VIP Priority</span>
-        {% endif %}
-        
-        <div class="d-flex justify-content-between align-items-center">
-            <span class="prep-time"><i class="bi bi-clock"></i> {{ item.preparation_time }} mins</span>
-            
-            {% if item.is_available %}
-                <form method="post" action="#">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-order">
-                        <i class="bi bi-cart-plus"></i> Add
-                    </button>
-                </form>
-            {% else %}
-                <span class="text-danger small">Out of Stock</span>
+    </div>
+
+    <!-- Recommended Section (filtered to exclude VIP items) -->
+    {% if recommended_items %}
+    <hr class="my-5">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-4">Recommended for You</h4>
+        </div>
+        {% for rec_item in recommended_items %}
+            {% if rec_item.vip_status == 'REGULAR' %}  <!-- Only show regular items -->
+            <div class="col-md-3 mb-4">
+                <a href="{% url 'item_detail' rec_item.id %}" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="recommended-img-container">
+                            {% if rec_item.image %}
+                                <img src="{{ rec_item.image.url }}" class="card-img-top" alt="{{ rec_item.name }}">
+                            {% else %}
+                                <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image">
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">{{ rec_item.name }}</h6>
+                            <p class="card-text text-muted small">{{ rec_item.preparation_time }} mins</p>
+                            <span class="text-danger">Rs. {{ rec_item.price }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
             {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add this near the bottom of your base.html -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            <!-- Message will be inserted here -->
         </div>
     </div>
 </div>
+
+<style>
+    /* Main Item Card - Side by Side Layout */
+    .menu-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        background: white;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-direction: row;
+    }
+
+    /* Fixed size for main item image */
+    .menu-img-container {
+        width: 40%;
+        height: 400px; /* Fixed height */
+        overflow: hidden;
+    }
+
+    .menu-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Fixed size for recommended items images */
+    .recommended-img-container {
+        height: 180px;
+        overflow: hidden;
+    }
+    
+    .recommended-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-body {
+        width: 60%;
+        padding: 2rem;
+    }
+
+    /* Button Styling */
+    .btn-order {
+        background-color: #000;
+        color: white;
+        border: 2px solid #000;
+        padding: 0.5rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-order:hover {
+        background-color: transparent;
+        color: #000;
+        border: 2px solid #000;
+        transform: translateY(-2px);
+    }
+
+    /* Other Styles */
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .menu-price {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #d9230f;
+    }
+
+    .prep-time {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .vip-badge {
+        background-color: #ffc107;
+        color: #212529;
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+        font-size: 0.8em;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .menu-card {
+            flex-direction: column;
+        }
+        
+        .menu-img-container,
+        .card-body {
+            width: 100%;
+        }
+        
+        .menu-img-container {
+            height: 300px; /* Adjusted for mobile */
+        }
+    }
+</style>
+
 {% endblock %}

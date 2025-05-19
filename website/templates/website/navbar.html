@@ -24,9 +24,9 @@
             </ul>
             
             <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-                <form action="" class="d-flex align-items-center">
+                <form action="{% url 'handle_search' %}" method="get" class="d-flex align-items-center">
                     <div class="input-group">
-                        <input type="text" class="form-control" name="search" placeholder="Search here..." value="{{ search_term|default:'' }}">
+                        <input type="search" class="form-control" name="search" placeholder="Search here..." value="{{ search_term|default:'' }}">
                         <button class="btn btn-outline-secondary" type="submit">
                             <i class="material-symbols-rounded">search</i>
                         </button>
@@ -35,10 +35,10 @@
 
                 
                 <div class="position-relative ms-3">
-                    <a class="nav-link p-0" href="#" style="font-size: 1.5rem;">
+                    <a class="nav-link p-0" href="{% url 'cart' %}" style="font-size: 1.5rem;">
                         <i class="material-symbols-rounded">shopping_cart</i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
-                            3
+                            {{total_quantity}}
                         </span>
                     </a>
                 </div>

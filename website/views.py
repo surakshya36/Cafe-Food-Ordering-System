@@ -1,29 +1,40 @@
-from django.shortcuts import render
-from .models import MenuItem
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q
+from .models import MenuItem, Cart,CartItem
 from categories.models import Category
-def menu_for_customers(request):
-    search_query = request.GET.get('search')
-    is_search = bool(search_query and search_query.strip())
+from django.urls import reverse
+from django.http import JsonResponse
+import json
+import uuid
+from django.contrib import messages
 
+def menu_for_customers(request):
+    search_query = request.GET.get('search', '').strip()
+    is_search = bool(search_query)
+
+    # Base queryset
+    menu_items = MenuItem.objects.filter(is_available=True)
+    
     if is_search:
-        menu_items = MenuItem.objects.filter(
-            is_available=True,
-            name__icontains=search_query.strip()
+        # Enhanced search across multiple fields
+        menu_items = menu_items.filter(
+        Q(name__icontains=search_query) |
+        Q(description__icontains=search_query) |
+        Q(category__name__icontains=search_query),
+        ~Q(vip_status='VIP_ONLY')  # Exclude VIP_ONLY from search
         ).select_related('category')
 
-        # Skip loading special items
         special_items = None
     else:
-        special_items = MenuItem.objects.filter(
-            is_available=True,
+        special_items = menu_items.filter(
             vip_status='TODAYS_SPECIAL'
         ).select_related('category')
-
-        menu_items = MenuItem.objects.filter(
-            is_available=True,
+        
+        menu_items = menu_items.filter(
             vip_status__in=['REGULAR', 'TODAYS_SPECIAL']
         ).select_related('category')
 
+    # Sorting and filtering
     categories = Category.objects.filter(is_active=True)
     sort_by = request.GET.get('sort', 'name')
     category_id = request.GET.get('category')
@@ -46,35 +57,106 @@ def menu_for_customers(request):
         'categories': categories,
         'current_sort': sort_by,
         'current_category': category_id,
-        'page': 'Menu',
         'search_term': search_query,
-        'is_search': is_search
+        'is_search': is_search,
+        'page': 'Menu'
     })
 
-def menu_view(request):
-    menu_items = MenuItem.objects.filter(is_available=True).select_related('category')
-    categories = Category.objects.all()
-    
-    # Similar sorting logic as above
-    sort_by = request.GET.get('sort', 'name')
-    category_id = request.GET.get('category')
-    
-    if category_id:
-        menu_items = menu_items.filter(category_id=category_id)
-    
-    if sort_by == 'price_asc':
-        menu_items = menu_items.order_by('price')
-    elif sort_by == 'price_desc':
-        menu_items = menu_items.order_by('-price')
-    elif sort_by == 'time':
-        menu_items = menu_items.order_by('preparation_time')
-    else:
-        menu_items = menu_items.order_by('name')
+def item_detail(request, item_id):
+    item = get_object_or_404(MenuItem, id=item_id, is_available=True)
+    search_query = request.GET.get('search', '').strip()  # Get search query if exists
+   
+    # Recommended items with search preservation
+    recommended_items = MenuItem.objects.filter(
+        is_available=True,
+        category=item.category,
+        vip_status='REGULAR'  # Only regular items
+    ).exclude(id=item.id)[:4]
     
     return render(request, 'website/menu_item_card.html', {
-        'menu_items': menu_items,
-        'categories': categories,
-        'current_sort': sort_by,
-        'current_category': category_id
+        'item': item,
+        'recommended_items': recommended_items,
+        'search_term': search_query,  # Pass to template
+        'page': 'Item Detail',
     })
 
+def handle_search(request):
+    """Redirect to menu page with search query"""
+    search_query = request.GET.get('search', '').strip()
+    return redirect(f"{reverse('customer_menu')}?search={search_query}")
+
+
+
+def cart(request):
+    if not request.session.session_key:
+        request.session.create()
+
+    session_id = request.session.session_key
+
+    try:
+        cart = Cart.objects.get(session_id=session_id, completed=False)
+        cart_items = cart.cartitems.select_related('item')
+        subtotal = cart.total_price
+        total_quantity = cart.num_of_items
+    except Cart.DoesNotExist:
+        cart = None
+        cart_items = []
+        subtotal = 0
+        total_quantity = 0
+
+    context = {
+        'cart': cart,
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'total_quantity': total_quantity,
+        'page': 'Your Cart',
+    }
+
+    return render(request, 'website/cart.html', context)
+
+
+def add_to_cart(request):
+    # Load JSON data from request
+    data = json.loads(request.body)
+    item_id = data.get("id")
+    
+    try:
+        item = MenuItem.objects.get(id=item_id)
+        
+        # Ensure session exists
+        if not request.session.session_key:
+            request.session.create()
+        
+        # Get or create cart
+        cart, created = Cart.objects.get_or_create(
+            session_id=request.session.session_key,
+            completed=False
+        )
+        
+        # Get or create cart item
+        cartitem, created = CartItem.objects.get_or_create(cart=cart, item=item)
+        cartitem.quantity += 1
+        cartitem.save()
+        
+        # Prepare success response
+        response_data = {
+            'success': True,
+            'message': f"{item.name} has been added to your cart successfully!",
+            'cart_total': cart.num_of_items,
+            'item_name': item.name,
+            'new_quantity': cartitem.quantity
+        }
+        
+        return JsonResponse(response_data)
+        
+    except MenuItem.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Item not found'
+        }, status=404)
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

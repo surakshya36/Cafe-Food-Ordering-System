@@ -1,0 +1,243 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center gx-4">
+
+        <!-- Left: Cart Items -->
+        <div class="col-md-7 mb-4">
+            <div class="p-4 rounded-3 shadow-sm bg-white">
+                <h4 class="mb-4 pb-2 border-bottom">Your Cart Items</h4>
+                {% if cart_items %}
+                    <div class="cart-items-container">
+                        {% for cart_item in cart_items %}
+                        <div class="cart-item d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <!-- Item Info -->
+                            <div class="d-flex align-items-center">
+                                <!-- Image -->
+                                <div class="cart-item-img-container me-3">
+                                    {% if cart_item.item.image %}
+                                        <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" class="cart-item-img">
+                                    {% else %}
+                                        <img src="{% static 'images/placeholder.png' %}" alt="No image" class="cart-item-img">
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Name and Price -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">{{ cart_item.item.name }}</h5>
+                                    <p class="mb-0 text-muted small">Rs. {{ cart_item.item.price }} × {{ cart_item.quantity }}</p>
+                                    <p class="mb-0 text-success small fw-bold">Rs. {% widthratio cart_item.item.price 1 cart_item.quantity %}</p>
+                                </div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="d-flex align-items-center">
+                                <!-- Quantity Controls -->
+                                <div class="quantity-controls me-3">
+                                    <form method="POST" action="#" class="d-flex flex-column align-items-center">
+                                        {% csrf_token %}
+                                        <button type="submit" class="quantity-btn increase">
+                                            <i class="bi bi-plus-lg"></i>
+                                        </button>
+                                        <span class="quantity-display my-1 fw-bold">{{ cart_item.quantity }}</span>
+                                        <button type="submit" class="quantity-btn decrease">
+                                            <i class="bi bi-dash-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <!-- Remove Button -->
+                                <form method="POST" action="#">
+                                    {% csrf_token %}
+                                    <button type="submit" class="remove-btn">
+                                        <i class="material-symbols-rounded">Delete</i>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-cart text-center py-5">
+                        <i class="bi bi-cart-x display-4 text-muted mb-3"></i>
+                        <p class="text-muted mb-4">Your cart is empty</p>
+                        <a href="#" class="btn btn-dark">Browse Menu</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Order Form -->
+        <div class="col-md-5">
+            <div class="p-4 rounded-3 shadow-sm bg-white sticky-top" style="top: 20px;">
+                <h4 class="mb-4 pb-2 border-bottom">Order Summary</h4>
+                <form method="post" action="#">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="customer_name" class="form-label fw-semibold">Your Name</label>
+                        <input type="text" class="form-control py-2" id="customer_name" name="customer_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="table_number" class="form-label fw-semibold">Table Number</label>
+                        <input type="number" class="form-control py-2" id="table_number" name="table_number" min="1" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="room_number" class="form-label fw-semibold">Room Number</label>
+                        <input type="text" class="form-control py-2" id="room_number" name="room_number" required>
+                    </div>
+                    
+                    <div class="order-summary border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Items ({{ total_quantity }}):</span>
+                            <span>Rs. {{ subtotal }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tax (13%):</span>
+                            <span>Rs. {% widthratio subtotal 1 0.13 %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold fs-5 mt-3 pt-2 border-top">
+                            <span>Total:</span>
+                            <span class="text-dark">Rs. {% widthratio subtotal 1 1.13 %}</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-dark w-100 mt-4 py-2 fw-bold">
+                        Place Order <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* Cart Items Section */
+    .cart-items-container {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+    
+    .cart-items-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .cart-items-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .cart-items-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .cart-item-img-container {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .cart-item-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .cart-item-img:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Quantity Controls */
+    .quantity-controls {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 4px 8px;
+    }
+    
+    .quantity-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: #000;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: all 0.2s;
+    }
+    
+    .quantity-btn:hover {
+        background: #333;
+    }
+    
+    .quantity-btn.decrease {
+        background: #f8f9fa;
+        color: #000;
+        border: 1px solid #dee2e6;
+    }
+    
+    .quantity-btn.decrease:hover {
+        background: #e9ecef;
+    }
+    
+    .quantity-display {
+        min-width: 20px;
+        text-align: center;
+    }
+    
+    /* Remove Button */
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        font-size: 1.2rem;
+        transition: all 0.2s;
+        padding: 8px;
+    }
+    
+    .remove-btn:hover {
+        color: #bb2d3b;
+        transform: scale(1.1);
+    }
+    
+    /* Order Summary */
+    .order-summary {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    
+    /* Empty Cart */
+    .empty-cart {
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .cart-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .cart-item > div:last-child {
+            margin-top: 15px;
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .quantity-controls {
+            flex-direction: row !important;
+            align-items: center;
+            gap: 10px;
+        }
+    }
+</style>
+{% endblock %}
