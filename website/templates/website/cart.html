@@ -11,8 +11,18 @@
                 <h4 class="mb-4 pb-2 border-bottom">Your Cart Items</h4>
                 {% if cart_items %}
                     <div class="cart-items-container">
+                        <!-- Empty Cart Button -->
+                            <div class="mb-3 text-end">
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm fw-semibold"
+                                        id="emptyCartBtn"
+                                        data-action="empty_cart">
+                                    <i class="bi bi-trash me-1"></i> Empty Cart
+                                </button>
+                            </div>
+
                         {% for cart_item in cart_items %}
-                        <div class="cart-item d-flex justify-content-between align-items-center py-3 border-bottom">
+                        <div class="cart-item d-flex justify-content-between align-items-center py-3 border-bottom" data-item-id="{{ cart_item.item.id }}">
                             <!-- Item Info -->
                             <div class="d-flex align-items-center">
                                 <!-- Image -->
@@ -34,26 +44,29 @@
 
                             <!-- Controls -->
                             <div class="d-flex align-items-center">
-                                <!-- Quantity Controls -->
-                                <div class="quantity-controls me-3">
-                                    <form method="POST" action="#" class="d-flex flex-column align-items-center">
-                                        {% csrf_token %}
-                                        <button type="submit" class="quantity-btn increase">
-                                            <i class="bi bi-plus-lg"></i>
-                                        </button>
-                                        <span class="quantity-display my-1 fw-bold">{{ cart_item.quantity }}</span>
-                                        <button type="submit" class="quantity-btn decrease">
-                                            <i class="bi bi-dash-lg"></i>
-                                        </button>
-                                    </form>
+
+                            <div class="quantity-controls me-3">
+                                <div class="d-flex flex-column align-items-center">
+                                    <!-- Fix: data-action should match the view name -->
+                                    <button class="quantity-btn increase"
+                                            data-action="increase_quantity" 
+                                            data-item-id="{{ cart_item.item.id }}">
+                                        <i class="material-symbols-rounded">add</i>
+                                    </button>
+                                    <span class="quantity-display my-1 fw-bold">{{ cart_item.quantity }}</span>
+                                    <button class="quantity-btn decrease"
+                                            data-action="decrease_quantity" 
+                                            data-item-id="{{ cart_item.item.id }}">
+                                        <i class="material-symbols-rounded">remove</i>
+                                    </button>
                                 </div>
-                                
+                                </div>
                                 <!-- Remove Button -->
-                                <form method="POST" action="#">
-                                    {% csrf_token %}
-                                    <button type="submit" class="remove-btn">
+                                
+                                    <button type="submit" class="remove-btn" data-action="remove_item" 
+                                    data-item-id="{{ cart_item.item.id }}">
                                         <i class="material-symbols-rounded">Delete</i>
-                                </form>
+                                    </button>
                             </div>
                         </div>
                         {% endfor %}
@@ -62,7 +75,7 @@
                     <div class="empty-cart text-center py-5">
                         <i class="bi bi-cart-x display-4 text-muted mb-3"></i>
                         <p class="text-muted mb-4">Your cart is empty</p>
-                        <a href="#" class="btn btn-dark">Browse Menu</a>
+                        <a href="{% url 'customer_menu' %}" class="btn btn-dark">Browse Menu</a>
                     </div>
                 {% endif %}
             </div>
@@ -106,11 +119,78 @@
                         Place Order <i class="bi bi-arrow-right ms-2"></i>
                     </button>
                 </form>
+                  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                        <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header bg-success text-white">
+                                <strong class="me-auto">Success</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body" id="toastMessage">
+                                <!-- Message will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
             </div>
+            
         </div>
 
     </div>
+  
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const emptyCartBtn = document.getElementById('emptyCartBtn');
+    
+    if (emptyCartBtn) {
+        emptyCartBtn.addEventListener('click', function () {
+            const action = this.dataset.action;
+            
+            fetch("{% url 'empty_cart' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ action: action })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network error');
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    // Refresh the page or remove cart DOM
+                    location.reload();
+                } else {
+                    showToast('Failed to empty cart.', false);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                showToast('Something went wrong.', false);
+            });
+        });
+    }
+
+    // Toast handler (already present in your code)
+    function showToast(message, success = true) {
+        const toastElement = document.getElementById("cartToast");
+        const toastMessage = document.getElementById("toastMessage");
+        toastMessage.innerText = message;
+        const toastHeader = toastElement.querySelector('.toast-header');
+
+        toastHeader.classList.remove('bg-success', 'bg-danger');
+        toastHeader.classList.add(success ? 'bg-success' : 'bg-danger');
+
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+    }
+});
+</script>
 
 <style>
     /* Cart Items Section */

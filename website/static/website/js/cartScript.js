@@ -15,14 +15,15 @@ function getCookie(name) {
 const csrftoken = getCookie('csrftoken');
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Initialize toasts (add this once in your base template)
+    // Initialize toasts
     const toastEl = document.getElementById('cartToast');
     const toast = toastEl ? new bootstrap.Toast(toastEl) : null;
 
+    // Add to cart functionality (unchanged)
     document.querySelectorAll(".btn-order").forEach(btn => {
         btn.addEventListener("click", function(e) {
             e.preventDefault();
-            const item_id = this.value; // Keep using value if that's what you have
+            const item_id = this.value;
             
             fetch("../add-to-cart/", {
                 method: 'POST',
@@ -34,14 +35,11 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(res => res.json())
             .then(data => {
-                console.log(data); // Keep for debugging
-                
+                console.log(data);
                 if(data.success) {
-                    // Update cart count - ONLY ADD THIS IF YOU HAVE THE ELEMENT
                     const cartCount = document.querySelector('.cart-count');
                     if(cartCount) cartCount.textContent = data.cart_total;
                     
-                    // Minimal toast implementation
                     if(toast) {
                         const toastMessage = document.getElementById('toastMessage');
                         if(toastMessage) {
@@ -54,4 +52,36 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => console.error(error));
         });
     });
+
+    document.querySelectorAll("[data-action='increase_quantity'], [data-action='decrease_quantity'], [data-action='remove_item']").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        const itemId = this.dataset.itemId;
+        const action = this.dataset.action;
+        
+        const url = `items/${action}/${itemId}/`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json", 
+                'X-CSRFToken': csrftoken 
+            }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Simply reload the page to reflect all cart changes
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Cart update failed:', error);
+        });
+    });
+});
+
 });

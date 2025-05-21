@@ -8,6 +8,7 @@ import json
 import uuid
 from django.contrib import messages
 
+
 def menu_for_customers(request):
     search_query = request.GET.get('search', '').strip()
     is_search = bool(search_query)
@@ -160,3 +161,99 @@ def add_to_cart(request):
             'success': False,
             'error': str(e)
         }, status=500)
+    
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from .models import Cart, CartItem, MenuItem
+from django.shortcuts import get_object_or_404
+
+def get_or_create_cart(request):
+    if not request.session.session_key:
+        request.session.create()
+    cart, _ = Cart.objects.get_or_create(session_id=request.session.session_key, completed=False)
+    return cart
+
+@require_POST
+def increase_quantity(request, item_id):
+    try:
+        cart = get_or_create_cart(request)
+        cart_item = get_object_or_404(CartItem, cart=cart, item_id=item_id)
+
+        cart_item.quantity += 1
+        cart_item.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': f"{cart_item.item.name} quantity increased.",
+            'new_quantity': cart_item.quantity,
+            'subtotal': cart_item.price,
+            'cart_total': cart.num_of_items,
+            'total_price': cart.total_price
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_POST
+def decrease_quantity(request, item_id):
+    try:
+        cart = get_or_create_cart(request)
+        cart_item = get_object_or_404(CartItem, cart=cart, item_id=item_id)
+
+        if cart_item.quantity > 1:
+            cart_item.quantity -= 1
+            cart_item.save()
+            new_quantity = cart_item.quantity
+            subtotal = cart_item.price
+            removed = False
+            message = f"{cart_item.item.name} quantity decreased."
+        else:
+            cart_item.delete()
+            new_quantity = 0
+            subtotal = 0
+            removed = True
+            message = f"{cart_item.item.name} removed from cart."
+
+        return JsonResponse({
+            'success': True,
+            'message': message,
+            'new_quantity': new_quantity,
+            'subtotal': subtotal,
+            'cart_total': cart.num_of_items,
+            'total_price': cart.total_price,
+            'removed': removed
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_POST
+def remove_item(request, item_id):
+    try:
+        cart = get_or_create_cart(request)
+        cart_item = get_object_or_404(CartItem, cart=cart, item_id=item_id)
+        item_name = cart_item.item.name
+        cart_item.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': f"{item_name} removed from cart.",
+            'cart_total': cart.num_of_items,
+            'total_price': cart.total_price,
+            'removed': True
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_POST
+def empty_cart(request):
+    try:
+        cart = get_or_create_cart(request)
+        cart.cartitems.all().delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': "Cart emptied successfully.",
+            'cart_total': 0,
+            'total_price': 0
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
