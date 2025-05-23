@@ -18,21 +18,21 @@
         </a>
     </li>
       <li class="nav-item">
-        <a class="nav-link text-dark" href="../pages/tables.html">
+        <a class="nav-link text-dark" href="#">
           <i class="material-symbols-rounded opacity-5">groups</i>
           <span class="nav-link-text ms-1">Employees</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark {% if '/categories/' in request.path %}active bg-gradient-dark text-white{% endif %}" href="{% url 'available_categories' %}">
+        <a class="nav-link text-dark {% if '/categories/' in request.path %}active bg-gradient-dark text-white{% endif %}" href="{% url 'category:available_categories' %}">
 
             <i class="material-symbols-rounded opacity-5">category</i>
             <span class="nav-link-text ms-1">Categories</span>
         </a>
     </li>
-      </li>
+      
       <li class="nav-item">
-        <a class="nav-link text-dark {% if '/menuitems/' in request.path %}active bg-gradient-dark text-white{% endif %}" href="{% url 'available_items' %}">
+        <a class="nav-link text-dark {% if '/menuitems/' in request.path %}active bg-gradient-dark text-white{% endif %}" href="{% url 'menuitem:admin_available_items' %}">
 
           
           <i class="material-symbols-rounded opacity-5">restaurant_menu</i>
@@ -40,17 +40,24 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark {% if request.resolver_match.url_name in 'available_rooms add_room edit_room delete_room' %}active bg-gradient-dark text-white{% endif %}" href="{% url 'available_rooms' %}">
+        <a class="nav-link text-dark {% if request.resolver_match.url_name in 'available_rooms add_room edit_room delete_room' %}active bg-gradient-dark text-white{% endif %}" href="{% url 'table:available_rooms' %}">
           <i class="material-symbols-rounded opacity-5">meeting_room</i>
           <span class="nav-link-text ms-1">Rooms</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark {% if request.resolver_match.url_name in 'available_tables add_table edit_table delete_table' %}active bg-gradient-dark text-white{% endif %}" href="{% url 'available_tables' %}">
+        <a class="nav-link text-dark {% if request.resolver_match.url_name in 'available_tables add_table edit_table delete_table' %}active bg-gradient-dark text-white{% endif %}" href="{% url 'table:available_tables' %}">
           <i class="material-symbols-rounded opacity-5">table_restaurant</i>
           <span class="nav-link-text ms-1">Tables</span>
         </a>
       </li>
+      <li class="nav-item">
+          <a class="nav-link text-dark" href="#">
+              <i class="material-symbols-rounded opacity-5">shopping_cart</i>
+              <span class="nav-link-text ms-1">Orders</span>
+          </a>
+      </li>
+
       <li class="nav-item">
         <a class="nav-link text-dark" href="../pages/notifications.html">
           <i class="material-symbols-rounded opacity-5">reviews</i>
@@ -67,7 +74,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark {% if request.path == '/logout/' %}active{% endif %}" href="{% url 'logout' %}">
+        <a class="nav-link text-dark {% if request.path == 'admin/logout/' %}active{% endif %}" href="{% url 'admin_logout' %}">
           <i class="material-symbols-rounded opacity-5">logout</i>
           <span class="nav-link-text ms-1">Log Out</span>
         </a>

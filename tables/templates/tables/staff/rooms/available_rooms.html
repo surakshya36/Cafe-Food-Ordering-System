@@ -1,0 +1,124 @@
+{% extends 'user_staff/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Messages -->
+{% if messages %}
+<div class="position-fixed end-0 mt-5" style="z-index: 9999; top: 70px;">
+    {% for message in messages %}
+    <div class="alert alert-dismissible fade show mx-3
+                {% if message.tags == 'success' %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}" 
+         role="alert">
+        <span class="text-white">{{ message }}</span>
+        <button type="button" class="btn-close text-white" data-bs-dismiss="alert" aria-label="Close">
+            <i class="material-symbols-rounded">close</i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Available Rooms</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center justify-content-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">S.N.</th>
+
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Room</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Capacity</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for room in rooms %}
+                                <tr class="room-row" data-href="{% url 'table:tables_by_room' room.id %}">
+                                    <td>
+                                        <div class="d-flex px-3">
+                                            <p class="text-xs font-weight-bold mb-0">{{ forloop.counter }}</p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex px-2">
+                                            <div class="my-auto">
+                                                <h6 class="mb-0 text-sm">{{ room.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-sm 
+                                            {% if room.room_type == 'VIP' %}bg-gradient-warning{% else %}bg-gradient-info{% endif %}">
+                                            {{ room.get_room_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <p class="text-sm font-weight-bold mb-0">{{ room.capacity }}</p>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-sm {% if room.is_active %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}">
+                                            {% if room.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </td>
+                                    
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">No rooms available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Make room table rows clickable
+        document.querySelectorAll('.room-row').forEach(function (row) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', function () {
+                window.location.href = row.dataset.href;
+            });
+        });
+    });
+</script>
+
+{% endblock %}

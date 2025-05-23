@@ -27,7 +27,7 @@
             <div class="card my-4">
                 <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                     <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                        <h6 class="text-white text-capitalize ps-3">Edit Room</h6>
+                        <h6 class="text-white text-capitalize ps-3">Add New Room</h6>
                     </div>
                 </div>
                 <div class="card-body px-0 pb-2">
@@ -38,31 +38,34 @@
                                     {% csrf_token %}
 
                                     <!-- Name -->
-                                    <div class="input-group input-group-outline mb-4 is-filled">
+                                    <div class="input-group input-group-outline mb-4">
                                         <label class="form-label">Room Number *</label>
-                                        <input type="text" class="form-control" name="name" value="{{ room.name }}" required>
+                                        <input type="text" class="form-control" name="name" required>
                                     </div>
 
                                     <!-- Room Type -->
-                                    <div class="input-group input-group-outline mb-4 is-filled">
+                                    <div class="input-group input-group-outline mb-4">
                                         <select name="room_type" class="form-select" required>
                                             <option value="">-- Select Room Type --</option>
-                                            <option value="VIP" {% if room.room_type == "VIP" %}selected{% endif %}>VIP Room</option>
-                                            <option value="NORMAL" {% if room.room_type == "NORMAL" %}selected{% endif %}>Normal Room</option>
+                                            <option value="VIP">VIP Room</option>
+                                            <option value="NORMAL">Normal Room</option>
                                         </select>
                                     </div>
 
                                     <!-- Capacity -->
-                                    <div class="input-group input-group-outline mb-4 is-filled">
+                                    <div class="input-group input-group-outline mb-4">
                                         <label class="form-label">No. of Tables *</label>
-                                        <input type="number" min="1" class="form-control" name="capacity" value="{{ room.capacity }}" required>
+                                        <input type="number" min="1" class="form-control" name="capacity" required>
                                     </div>
 
-                                    
+                                    <!-- Description 
+                                    <div class="input-group input-group-outline mb-4">
+                                        <textarea class="form-control" placeholder="Description..." name="description" rows="3"></textarea>
+                                    </div> -->
 
                                     <!-- Active Switch -->
                                     <div class="form-check form-switch d-flex align-items-center mb-4">
-                                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if room.is_active %}checked{% endif %}>
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
                                         <label class="form-check-label ms-3" for="is_active">
                                             Active
                                         </label>
@@ -70,11 +73,11 @@
 
                                     <!-- Submit and Cancel Buttons -->
                                     <div class="d-flex justify-content-end mt-4">
-                                        <a href="{% url 'available_rooms' %}" class="btn btn-outline-secondary me-3">
+                                        <a href="{% url 'table:available_rooms' %}" class="btn btn-outline-secondary me-3">
                                             <i class="material-symbols-rounded me-1">cancel</i> Cancel
                                         </a>
                                         <button type="submit" class="btn bg-gradient-dark">
-                                            <i class="material-symbols-rounded me-1">save</i> Save Changes
+                                            <i class="material-symbols-rounded me-1">add</i> Add Room
                                         </button>
                                     </div>
                                 </form>
@@ -97,14 +100,11 @@ document.addEventListener('DOMContentLoaded', function() {
             bsToast.hide();
         });
     }, 5000);
-
-    // Fill input-group-outline with 'is-filled' class on load
+    
+    // Update form label classes when fields are filled
     const inputs = document.querySelectorAll('.input-group-outline input, .input-group-outline textarea, .input-group-outline select');
     inputs.forEach(input => {
-        if (input.value) {
-            input.parentElement.classList.add('is-filled');
-        }
-        input.addEventListener('input', function () {
+        input.addEventListener('input', function() {
             if (this.value) {
                 this.parentElement.classList.add('is-filled');
             } else {

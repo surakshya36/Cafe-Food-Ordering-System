@@ -41,7 +41,7 @@
                 </tr>
                 <tr>
                     <th>Category:</th>
-                    <td>{{ menu_items.category.name }} ({{ menu_items.category.get_category_type_display }})</td>
+                    <td>{{ menu_items.category.name }}</td>
                 </tr>
                 <tr>
                     <th>VIP Status:</th>
@@ -61,7 +61,7 @@
 
             <!-- Back Button -->
             <div class="mt-4 text-end">
-                <a href="{% url 'available_items' %}" class="btn btn-outline-dark">
+                <a href="{% url 'menuitem:admin_available_items' %}" class="btn btn-outline-dark">
                     <i class="material-symbols-rounded me-1">arrow_back</i> Back to Menu
                 </a>
             </div>

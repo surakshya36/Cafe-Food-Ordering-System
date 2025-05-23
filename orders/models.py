@@ -11,7 +11,7 @@ class Order(models.Model):
         ('PAID', 'Paid'),
         ('CANCELLED', 'Cancelled'),
     )
-    
+
     table = models.ForeignKey('tables.Table', on_delete=models.PROTECT, related_name='orders')
     customer_name = models.CharField(max_length=100, blank=True)
     status = models.CharField(max_length=15, choices=ORDER_STATUS, default='PENDING')
@@ -22,17 +22,20 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
     vip_discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     
+    # ✅ New Field
+    is_rush = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['-created_at']
-        
+
     def __str__(self):
         return f"Order #{self.id} - {self.table} ({self.get_status_display()})"
-    
+
     def update_total(self):
         subtotal = sum(item.subtotal for item in self.items.all())
         self.total_amount = max(0, subtotal - self.vip_discount)
         self.save(update_fields=['total_amount'])
-    
+
     def close_order(self):
         self.status = 'PAID'
         self.is_paid = True
@@ -42,6 +45,7 @@ class Order(models.Model):
             self.table.current_order = None
             self.table.status = 'AVAILABLE'
             self.table.save()
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

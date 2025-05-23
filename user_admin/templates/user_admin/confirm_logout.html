@@ -17,7 +17,7 @@
 
                         <p class="mb-4">Are you sure you want to log out?</p>
 
-                        <form method="post" action="{% url 'logout' %}">
+                        <form method="post" action="{% url 'admin_logout' %}">
                             {% csrf_token %}
                             <div class="d-flex justify-content-center">
                                 <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary me-3">

@@ -3,9 +3,10 @@ from django.contrib import messages
 from django.db import IntegrityError
 from .models import Category
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 
 
-@login_required(login_url='/login/')
+@user_passes_test(lambda u: u.is_superuser, login_url='/login/')
 def display_categories(request):
     categories = Category.objects.all().order_by('display_order', 'name')
     return render(request, 'categories/display_categories.html', {
@@ -14,7 +15,7 @@ def display_categories(request):
         'categories': categories
     })
 
-@login_required(login_url='/login/')
+@user_passes_test(lambda u: u.is_superuser, login_url='/login/')
 def add_category(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -25,23 +26,23 @@ def add_category(request):
         # Validation
         if not name:
             messages.error(request, "Category name is required")
-            return redirect('add_category')
+            return redirect('category:add_category')
             
         try:
             display_order = int(display_order)
             if display_order < 0:
                 messages.error(request, "Display order must be a positive number")
-                return redirect('add_category')
+                return redirect('category:add_category')
                 
             # Check if name already exists
             if Category.objects.filter(name=name).exists():
                 messages.error(request, f"A category with name '{name}' already exists")
-                return redirect('add_category')
+                return redirect('category:add_category')
                 
             # Check if display order already exists
             if Category.objects.filter(display_order=display_order).exists():
                 messages.warning(request, f"Display order {display_order} is already taken")
-                return redirect('add_category')
+                return redirect('category:add_category')
 
             Category.objects.create(
                 name=name,
@@ -50,24 +51,24 @@ def add_category(request):
                 is_active=is_active,
             )
             messages.success(request, "Category added successfully!")
-            return redirect('available_categories')
+            return redirect('category:available_categories')
             
         except ValueError:
             messages.error(request, "Display order must be a valid number")
-            return redirect('add_category')
+            return redirect('category:add_category')
         except IntegrityError as e:
             messages.error(request, f"Database error: {str(e)}")
-            return redirect('add_category')
+            return redirect('category:add_category')
         except Exception as e:
             messages.error(request, f"An error occurred: {str(e)}")
-            return redirect('add_category')
+            return redirect('category:add_category')
     
     return render(request, 'categories/add_category.html', {
         'page': 'Add new Category',
         'current_section': 'Categories / Add new Category',
     })
 
-@login_required(login_url='/login/')
+@user_passes_test(lambda u: u.is_superuser, login_url='/login/')
 def update_category(request, id):
     category = get_object_or_404(Category, id=id)
     
@@ -80,26 +81,26 @@ def update_category(request, id):
         # Basic validation
         if not name:
             messages.error(request, "Category name is required")
-            return redirect('update_category', id=id)
+            return redirect('category:update_category', id=id)
             
         try:
             display_order = int(display_order)
             if display_order < 0:
                 messages.error(request, "Display order must be a positive number")
-                return redirect('update_category', id=id)
+                return redirect('category:update_category', id=id)
         except ValueError:
             messages.error(request, "Display order must be a valid number")
-            return redirect('update_category', id=id)
+            return redirect('category:update_category', id=id)
 
         # Check for duplicate name (excluding current category)
         if Category.objects.filter(name=name).exclude(id=id).exists():
             messages.error(request, f"A category with name '{name}' already exists")
-            return redirect('update_category', id=id)
+            return redirect('category:update_category', id=id)
             
         # Check for duplicate display order (excluding current category)
         if Category.objects.filter(display_order=display_order).exclude(id=id).exists():
             messages.warning(request, f"Display order {display_order} is already taken")
-            return redirect('update_category', id=id)
+            return redirect('category:update_category', id=id)
 
         # Update the category
         category.name = name
@@ -109,7 +110,7 @@ def update_category(request, id):
         category.save()
         
         messages.success(request, "Category updated successfully!")
-        return redirect('available_categories')
+        return redirect('category:available_categories')
 
     return render(request, 'categories/update_category.html', {
         'page': 'Update Category',
@@ -127,7 +128,7 @@ def update_category(request, id):
 #         'menu_items': menu_items,
 #         'current_section': 'Categories / View Category'
 #     })
-@login_required(login_url='/login/')
+@user_passes_test(lambda u: u.is_superuser, login_url='/login/')
 def delete_category(request, id):
     category = get_object_or_404(Category, id=id)
     
@@ -137,14 +138,14 @@ def delete_category(request, id):
             # Check if category has any menu items
             if category.menu_items.exists():
                 messages.error(request, f"Cannot delete '{category_name}' because it has menu items assigned")
-                return redirect('available_categories')
+                return redirect('category:available_categories')
                 
             category.delete()
             messages.success(request, f"Category '{category_name}' deleted successfully!")
         except Exception as e:
             messages.error(request, f"Error deleting category: {str(e)}")
         
-        return redirect('available_categories')
+        return redirect('category:available_categories')
     
     return render(request, 'categories/confirm_delete.html', {
         'page': 'Confirm Delete',

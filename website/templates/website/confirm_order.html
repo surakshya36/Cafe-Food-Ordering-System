@@ -1,0 +1,43 @@
+{% extends 'user_staff/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Confirm Order</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <div class="text-center">
+                        <i class="material-symbols-rounded text-success display-1 mb-3">check_circle</i>
+
+                        <p class="mb-4">Are you sure you want to place this order?</p>
+
+                        <div class="alert alert-warning text-start" role="alert">
+                            <strong>Warning:</strong><br>
+                            Once the order is placed, <strong>changes cannot be made</strong>.<br>
+                            On cancellation, <strong>30% of the bill</strong> must be paid.
+                        </div>
+
+                        <form method="post" action="{% url 'confirm_order' %}">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-center">
+                                <a href="{% url 'cart' %}" class="btn btn-outline-secondary me-3">
+                                    <i class="material-symbols-rounded me-1">cancel</i> Cancel
+                                </a>
+                                <button type="submit" class="btn bg-gradient-success text-white">
+                                    <i class="material-symbols-rounded me-1">done</i> Confirm Order
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

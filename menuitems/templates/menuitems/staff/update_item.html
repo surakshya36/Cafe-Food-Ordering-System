@@ -1,0 +1,189 @@
+{% extends 'user_staff/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Messages -->
+{% if messages %}
+<div class="position-fixed top-1 end-1" style="z-index: 9999; width: 300px;">
+    {% for message in messages %}
+    <div class="toast show align-items-center text-white 
+                {% if message.tags == 'success' %}bg-success{% else %}bg-danger{% endif %} 
+                border-0 mb-2" role="alert">
+        <div class="d-flex">
+            <div class="toast-body small">
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Update Menu Item</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 col-md-10">
+                                <form method="post" enctype="multipart/form-data" class="p-3">
+                                    {% csrf_token %}
+
+                                    <!-- Name -->
+                                    <div class="input-group input-group-outline mb-4">
+                                        <label class="form-label">Item Name *</label>
+                                        <input type="text" class="form-control" name="name" required value="{{ menu_item.name }}">
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="input-group input-group-outline mb-4">
+                                        <textarea class="form-control" placeholder="Description..." name="description" rows="3">{{ menu_item.description }}</textarea>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Price -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <label class="form-label">Price *</label>
+                                                <input type="number" step="0.01" class="form-control" name="price" required value="{{ menu_item.price }}">
+                                            </div>
+                                        </div>
+
+                                        <!-- Quantity -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <label class="form-label">Quantity </label>
+                                                <input type="number" min="0" class="form-control" name="quantity"  value="{{ menu_item.quantity }}">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Preparation Time -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <label class="form-label">Prep Time (mins) *</label>
+                                                <input type="number" min="1" class="form-control" name="preparation_time" required value="{{ menu_item.preparation_time }}">
+                                            </div>
+                                        </div>
+
+                                        <!-- Category -->
+                                        <div class="col-md-6">
+                                            <div class="input-group input-group-outline mb-4">
+                                                <select name="category" class="form-select" required>
+                                                    <option value="">-- Select Category --</option>
+                                                    {% for cat in categories %}
+                                                    <option value="{{ cat.id }}" 
+                                                            {% if cat.id == menu_item.category.id %}selected{% endif %}>
+                                                        {{ cat.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                                                        <!-- VIP Status Selection -->
+                                    <div class="input-group input-group-outline mb-4">
+                                        <label class="form-label">VIP Status *</label>
+                                        <select name="vip_status" id="vip_status" class="form-select" required>
+                                            <option value="">-- Select VIP Status --</option>
+                                            <option value="REGULAR" {% if menu_item.vip_status == "REGULAR" %}selected{% endif %}>
+                                                Regular Item
+                                            </option>
+                                            <option value="VIP_ONLY" {% if menu_item.vip_status == "VIP_ONLY" %}selected{% endif %}>
+                                                VIP Exclusive
+                                            </option>
+                                            <option value="TODAYS_SPECIAL" {% if menu_item.vip_status == "TODAYS_SPECIAL" %}selected{% endif %}>
+                                                Today's Special
+                                            </option>
+                                        </select>
+                                    </div>
+
+
+                                    <!-- Image Upload -->
+                                    <div class="input-group input-group-outline mb-4">
+                                        <label class="form-label">Image</label>
+                                        <input type="file" class="form-control" name="image" accept="image/*">
+                                        <div class="mt-2">
+                                            {% if menu_item.image %}
+                                                <img src="{{ menu_item.image.url }}" alt="{{ menu_item.name }}" 
+                                                     class="img-fluid shadow" 
+                                                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 12px;">
+                                                <p class="text-xs text-muted mt-1">Current image</p>
+                                            {% else %}
+                                                <div class="d-flex align-items-center justify-content-center bg-light" 
+                                                     style="width: 100px; height: 100px; border-radius: 12px;">
+                                                    <span class="text-xs text-muted">No image</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Available Switch -->
+                                    <div class="form-check form-switch d-flex align-items-center mb-4">
+                                        <input class="form-check-input" type="checkbox" name="is_available" id="is_available"
+                                               {% if menu_item.is_available %}checked{% endif %}>
+                                        <label class="form-check-label ms-3" for="is_available">
+                                            Available
+                                        </label>
+                                    </div>
+
+                                    <!-- Submit and Cancel Buttons -->
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <a href="{% url 'menuitem:staff_available_items' %}" class="btn btn-outline-secondary me-3">
+                                            <i class="material-symbols-rounded me-1">cancel</i> Cancel
+                                        </a>
+                                        <button type="submit" class="btn bg-gradient-dark">
+                                            <i class="material-symbols-rounded me-1">save</i> Update Item
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss messages after 5 seconds
+    setTimeout(function() {
+        var toasts = document.querySelectorAll('.toast');
+        toasts.forEach(function(toast) {
+            var bsToast = new bootstrap.Toast(toast);
+            bsToast.hide();
+        });
+    }, 5000);
+    
+    // Update form label classes when fields are filled
+    const inputs = document.querySelectorAll('.input-group-outline input, .input-group-outline textarea, .input-group-outline select');
+    inputs.forEach(input => {
+        // Check on load
+        if (input.value) {
+            input.parentElement.classList.add('is-filled');
+        }
+        
+        // Check on input
+        input.addEventListener('input', function() {
+            if (this.value) {
+                this.parentElement.classList.add('is-filled');
+            } else {
+                this.parentElement.classList.remove('is-filled');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

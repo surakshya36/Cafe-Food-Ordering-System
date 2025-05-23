@@ -72,10 +72,10 @@
                                         </span>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <a href="{% url 'edit_table' table.id %}" class="btn btn-sm bg-gradient-info me-1 mb-0" title="Edit">
+                                        <a href="{% url 'table:edit_table' table.id %}" class="btn btn-sm bg-gradient-info me-1 mb-0" title="Edit">
                                             <i class="material-symbols-rounded text-sm">edit</i>
                                         </a>
-                                        <a href="{% url 'delete_table' table.id %}" class="btn btn-sm bg-gradient-danger mb-0" title="Delete">
+                                        <a href="{% url 'table:delete_table' table.id %}" class="btn btn-sm bg-gradient-danger mb-0" title="Delete">
                                             <i class="material-symbols-rounded text-sm">delete</i>
                                         </a>
                                     </td>
@@ -95,7 +95,7 @@
 </div>
 
 <div class="fixed-plugin">
-    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2" title="Add new Table" href="{% url 'add_table' %}">
+    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2" title="Add new Table" href="{% url 'table:add_table' %}">
         <i class="material-symbols-rounded py-2">add</i>
     </a>
 </div>

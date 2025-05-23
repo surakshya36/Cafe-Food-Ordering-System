@@ -6,32 +6,67 @@ from categories.models import Category
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 
+
 @login_required(login_url='/login/')
 def available_items(request):
+    print("is_superuser:", request.user.is_superuser)
+    print("is_staff:", request.user.is_staff)
+    print("username:", request.user.username)
+
     items = MenuItem.objects.all().order_by('category__display_order', 'name')
-    return render(request, 'menuitems/available_items.html', {
+
+    if request.user.is_superuser:
+        template = 'menuitems/admin/available_items.html'
+    elif request.user.is_staff:
+        template = 'menuitems/staff/available_items.html'
+    else:
+        raise PermissionDenied("You do not have access to this page.")
+
+    context = {
         'menu_items': items,
-        'page': 'Available Menu items',
-        'current_section': 'Menu-Items',
-    })
+        'page': 'Available Menu Items',
+        'current_section': 'Menu / Available Items',
+    }
+    return render(request, template, context)
 
 @login_required(login_url='/login/')
 def view_item(request, id):
     queryset = MenuItem.objects.get(id = id)
     
-    return render(request, 'menuitems/view_item.html', {
+    
+    if request.user.is_superuser:
+        template = 'menuitems/admin/view_item.html'
+    elif request.user.is_staff:
+        template = 'menuitems/staff/view_item.html'
+    else:
+        raise PermissionDenied("You do not have access to this page.")
+
+    return render(request, template, {
         'page': 'View Menu Item',
         'current_section': 'View-Menu-Item',
         'menu_items':queryset
     })
+
 @login_required(login_url='/login/')
 def update_item(request, item_id):
     try:
         menu_item = MenuItem.objects.get(pk=item_id)
     except MenuItem.DoesNotExist:
         messages.error(request, "Menu item not found")
-        return redirect('available_items')
+        return redirect('menuitem:available_items')
 
+    
+    if request.user.is_superuser:
+        template = 'menuitems/admin/update_item.html'
+        redirect_to_update = 'menuitem:admin_update_item'
+        redirect_to_success = 'menuitem:admin_available_items'
+    elif request.user.is_staff:
+        template = 'menuitems/staff/update_item.html'
+        redirect_to_update = 'menuitem:staff_update_item'
+        redirect_to_success = 'menuitem:staff_available_items'
+    else:
+        raise PermissionDenied("You do not have access to this page.")
+    
     if request.method == "POST":
         # Get form data
         name = request.POST.get('name')
@@ -47,7 +82,7 @@ def update_item(request, item_id):
         # Validation
         if not name or not price or not category_id:
             messages.error(request, "Name, price, and category are required")
-            return redirect('update_item', item_id=item_id)
+            return redirect(redirect_to_update, item_id=item_id)
 
         try:
             price = float(price)
@@ -55,7 +90,7 @@ def update_item(request, item_id):
                 raise ValueError("Price must be positive")
         except ValueError:
             messages.error(request, "Price must be a valid positive number")
-            return redirect('update_item', item_id=item_id)
+            return redirect(redirect_to_update, item_id=item_id)
 
         try:
             quantity = int(quantity)
@@ -63,7 +98,7 @@ def update_item(request, item_id):
                 raise ValueError("Quantity must be non-negative")
         except ValueError:
             messages.error(request, "Quantity must be a valid non-negative integer")
-            return redirect('update_item', item_id=item_id)
+            return redirect(redirect_to_update, item_id=item_id)
 
         try:
             preparation_time = int(preparation_time)
@@ -71,18 +106,18 @@ def update_item(request, item_id):
                 raise ValueError("Preparation time must be positive")
         except ValueError:
             messages.error(request, "Preparation time must be a valid positive integer")
-            return redirect('update_item', item_id=item_id)
+            return redirect(redirect_to_update, item_id=item_id)
 
         try:
             category = Category.objects.get(id=category_id)
         except Category.DoesNotExist:
             messages.error(request, "Selected category does not exist")
-            return redirect('update_item', item_id=item_id)
+            return redirect(redirect_to_update, item_id=item_id)
 
         # Check if name already exists (excluding current item)
         if MenuItem.objects.filter(name=name).exclude(pk=item_id).exists():
             messages.error(request, f"A menu item with name '{name}' already exists")
-            return redirect('update_item', item_id=item_id)
+            return redirect(redirect_to_update, item_id=item_id)
 
         try:
             # Update fields
@@ -102,21 +137,34 @@ def update_item(request, item_id):
             menu_item.save()
             
             messages.success(request, "Menu item updated successfully!")
-            return redirect('available_items')
+            return redirect(redirect_to_success)
         except Exception as e:
             messages.error(request, f"An error occurred: {str(e)}")
-            return redirect('update_item', item_id=item_id)
+            return redirect(redirect_to_update, item_id=item_id)
 
     categories = Category.objects.filter(is_active=True).order_by('display_order')
-    return render(request, 'menuitems/update_item.html', {
+    return render(request, template, {
         'menu_item': menu_item,
         'categories': categories,
         'vip_status_choices': MenuItem.VIP_STATUS_CHOICES,  # Pass choices to template
         'page': 'Update Menu Item',
         'current_section': 'Menu / Update Item',
     })
+
 @login_required(login_url='/login/')
 def add_item(request):
+    
+    if request.user.is_superuser:
+        template = 'menuitems/admin/add_item.html'
+        redirect_to_add = 'menuitem:admin_add_item'
+        redirect_to_success = 'menuitem:admin_available_items'
+    elif request.user.is_staff:
+        template = 'menuitems/staff/add_item.html'
+        redirect_to_add = 'menuitem:staff_add_item'
+        redirect_to_success = 'menuitem:staff_available_items'
+    else:
+        raise PermissionDenied()
+
     if request.method == "POST":
         name = request.POST.get('name')
         description = request.POST.get('description', '')
@@ -131,7 +179,7 @@ def add_item(request):
                 raise ValueError("Quantity must be non-negative")
         except ValueError:
             messages.error(request, "Quantity must be a valid non-negative integer")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
         is_available = quantity > 0 and request.POST.get('is_available') == 'on'
         preparation_time = request.POST.get('preparation_time', 15)
@@ -140,7 +188,7 @@ def add_item(request):
         # Validation
         if not name or not price or not category_id:
             messages.error(request, "Name, price, and category are required")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
         try:
             price = float(price)
@@ -148,7 +196,7 @@ def add_item(request):
                 raise ValueError("Price must be a positive number")
         except ValueError:
             messages.error(request, "Price must be a valid positive number")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
         try:
             quantity = int(quantity)
@@ -156,7 +204,7 @@ def add_item(request):
                 raise ValueError("Quantity must be non-negative")
         except ValueError:
             messages.error(request, "Quantity must be a valid non-negative integer")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
         try:
             preparation_time = int(preparation_time)
@@ -164,18 +212,18 @@ def add_item(request):
                 raise ValueError("Preparation time must be positive")
         except ValueError:
             messages.error(request, "Preparation time must be a valid positive integer")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
         try:
             category = Category.objects.get(id=category_id)
         except Category.DoesNotExist:
             messages.error(request, "Selected category does not exist")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
         # Check if name already exists
         if MenuItem.objects.filter(name=name).exists():
             messages.error(request, f"A menu item with name '{name}' already exists")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
         try:
             # Create the menu item with VIP status
@@ -193,31 +241,43 @@ def add_item(request):
             menu_item.save()
             
             messages.success(request, "Menu item added successfully!")
-            return redirect('available_items')
+            return redirect(redirect_to_success)
         except IntegrityError as e:
             messages.error(request, f"Database error: {str(e)}")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
         except Exception as e:
             messages.error(request, f"An error occurred: {str(e)}")
-            return redirect('add_item')
+            return redirect(redirect_to_add)
 
     categories = Category.objects.filter(is_active=True).order_by('display_order')
-    return render(request, 'menuitems/add_item.html', {
+    return render(request, template, {
         'categories': categories,
         'vip_status_choices': MenuItem.VIP_STATUS_CHOICES,  # Pass choices to template
         'page': 'Add new Menu Item',
         'current_section': 'Menu / Add new Item',
     })
+
 @login_required(login_url='/login/')
 def delete_item(request, id):
     item = get_object_or_404(MenuItem, id=id)
-
+    
+    if request.user.is_superuser:
+        template = 'menuitems/admin/confirm_delete.html'
+        redirect_to_success = 'menuitem:admin_available_items'
+    elif request.user.is_staff:
+        template = 'menuitems/staff/confirm_delete.html'
+        redirect_to_success = 'menuitem:staff_available_items'
+    else:
+        raise PermissionDenied("You do not have access to this page.")
+    
     if request.method == "POST":
         item.delete()
-        return redirect('available_items')  # Replace with your actual redirect URL name
+        messages.success(request, "Menu item deleted successfully!")
+        return redirect(redirect_to_success)  # Replace with your actual redirect URL name
 
-    return render(request, 'menuitems/confirm_delete.html', {
+    return render(request, template, {
         'page': 'Delete Menu Item',
         'item': item,
         'current_section': 'Menu / Delete Item',
     })
+

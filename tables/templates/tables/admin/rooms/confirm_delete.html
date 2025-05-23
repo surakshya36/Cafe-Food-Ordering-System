@@ -21,7 +21,7 @@
                                     <p class="mb-4">{{ object.name }} ({{ object.get_room_type_display }})</p>
                                     
                                     <div class="d-flex justify-content-center mt-4">
-                                        <a href="{% url 'available_rooms' %}" class="btn btn-outline-secondary me-3">
+                                        <a href="{% url 'table:available_rooms' %}" class="btn btn-outline-secondary me-3">
                                             <i class="material-symbols-rounded me-1">cancel</i> Cancel
                                         </a>
                                         <button type="submit" class="btn bg-gradient-danger">

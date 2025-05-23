@@ -257,3 +257,22 @@ def empty_cart(request):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_POST
+def confirm_order_view(request):
+    cart = get_or_create_cart(request)
+    
+    if not cart.cartitems.exists():
+        messages.error(request, "Your cart is empty.")
+        return redirect('customer_cart')
+
+    cart_items = cart.cartitems.select_related('item')
+    
+    return render(request, 'website/confirm_order.html', {
+        'cart': cart,
+        'cart_items': cart_items,
+        'subtotal': cart.total_price,
+        'total_quantity': cart.num_of_items,
+        'page': 'Confirm Order',
+    })
+

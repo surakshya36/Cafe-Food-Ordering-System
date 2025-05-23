@@ -1,0 +1,71 @@
+{% extends 'user_staff/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-gradient-dark text-white">
+            <h4 class="mb-0" style="color: #fff;">Table Details</h4>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-striped">
+                <tr>
+                    <th>Table Number:</th>
+                    <td>Table {{ table.table_number }}</td>
+                </tr>
+                <tr>
+                    <th>Room:</th>
+                    <td>{{ table.room.name }}</td>
+                </tr>
+                <tr>
+                    <th>Number of Seats:</th>
+                    <td>{{ table.seats }}</td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td>
+                        {% if table.status == 'AVAILABLE' %}
+                            <span class="badge bg-success">Available</span>
+                        {% elif table.status == 'OCCUPIED' %}
+                            <span class="badge bg-danger">Occupied</span>
+                        {% elif table.status == 'RESERVED' %}
+                            <span class="badge bg-warning text-dark">Reserved</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Unknown</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Order Status:</th>
+                    <td>
+                        {% if current_order %}
+                            {{ current_order.get_order_status_display }}
+                        {% else %}
+                            <span class="text-muted">No active order</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Payment Status:</th>
+                    <td>
+                        {% if current_order %}
+                            {{ current_order.get_payment_status_display }}
+                        {% else %}
+                            <span class="text-muted">No payment</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Back Button -->
+            <div class="mt-4 text-end">
+                <a href="{% url 'table:tables_by_room' table.room.id %}" class="btn btn-outline-dark">
+                    <i class="material-symbols-rounded me-1">arrow_back</i> Back to Tables in {{ table.room.name }}
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -21,7 +21,7 @@
                                     <p class="mb-4">Table {{ object.table_number }} in {{ object.room.name }}</p>
                                     
                                     <div class="d-flex justify-content-center mt-4">
-                                        <a href="{% url 'available_tables' %}" class="btn btn-outline-secondary me-3">
+                                        <a href="{% url 'table:available_tables' %}" class="btn btn-outline-secondary me-3">
                                             <i class="material-symbols-rounded me-1">cancel</i> Cancel
                                         </a>
                                         <button type="submit" class="btn bg-gradient-danger">

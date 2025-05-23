@@ -32,7 +32,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register-staff/', register_staff, name = "register_staff"),
     path('login/', login_user, name = "login"),
-    path('logout/', logout_view, name = "logout"),
+    path('admin-logout/', logout_view, name = "admin_logout"),
+    path('staff-logout/', staff_logout_view, name = "staff_logout"),
+
     path('admin-dashboard/', admin_dashboard, name="admin_dashboard" ),
     path('categories/', include('categories.urls')),
     path('menuitems/', include('menuitems.urls')),

@@ -1,4 +1,4 @@
-{% extends 'user_admin/base.html' %}
+{% extends 'user_staff/base.html' %}
 {% load static %}
 
 {% block content %}
@@ -24,7 +24,7 @@
             <div class="card my-4">
                 <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                     <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                        <h6 class="text-white text-capitalize ps-3">Available Rooms</h6>
+                        <h6 class="text-white text-capitalize ps-3">Available Tables</h6>
                     </div>
                 </div>
                 <div class="card-body px-0 pb-2">
@@ -34,16 +34,17 @@
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">S.N.</th>
 
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Room</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Capacity</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Table</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Room</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Seats</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Actions</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for room in rooms %}
-                                <tr>
+                                {% for table in tables %}
+                                <tr class="room-row" data-href="{% url 'table:table_detail' table.id %}" style="cursor: pointer;">
+
                                     <td>
                                         <div class="d-flex px-3">
                                             <p class="text-xs font-weight-bold mb-0">{{ forloop.counter }}</p>
@@ -52,51 +53,47 @@
                                     <td>
                                         <div class="d-flex px-2">
                                             <div class="my-auto">
-                                                <h6 class="mb-0 text-sm">{{ room.name }}</h6>
+                                                <h6 class="mb-0 text-sm">Table {{ table.table_number }}</h6>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
+                                        <p class="text-sm mb-0">{{ table.room.name }}</p>
+                                    </td>
+                                    <td>
+                                        <p class="text-sm font-weight-bold mb-0">{{ table.seats }}</p>
+                                    </td>
+                                    <td>
                                         <span class="badge badge-sm 
-                                            {% if room.room_type == 'VIP' %}bg-gradient-warning{% else %}bg-gradient-info{% endif %}">
-                                            {{ room.get_room_type_display }}
+                                            {% if table.status == 'AVAILABLE' %}bg-gradient-success
+                                            {% elif table.status == 'OCCUPIED' %}bg-gradient-danger
+                                            {% elif table.status == 'RESERVED' %}bg-gradient-warning
+                                            {% else %}bg-gradient-secondary{% endif %}">
+                                            {{ table.get_status_display }}
                                         </span>
                                     </td>
-                                    <td>
-                                        <p class="text-sm font-weight-bold mb-0">{{ room.capacity }}</p>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-sm {% if room.is_active %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}">
-                                            {% if room.is_active %}Active{% else %}Inactive{% endif %}
-                                        </span>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <a href="{% url 'edit_room' room.id %}" class="btn btn-sm bg-gradient-info me-1 mb-0" title="Edit">
-                                            <i class="material-symbols-rounded text-sm">edit</i>
-                                        </a>
-                                        <a href="{% url 'delete_room' room.id %}" class="btn btn-sm bg-gradient-danger mb-0" title="Delete">
-                                            <i class="material-symbols-rounded text-sm">delete</i>
-                                        </a>
-                                    </td>
+                                    
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">No rooms available</td>
+                                    <td colspan="5" class="text-center py-4">No tables available</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    
                 </div>
+                
             </div>
+            <!-- Back Button -->
+                    <div class="mt-4 text-end">
+                        <a href="{% url 'table:staff_available_rooms' %}" class="btn btn-outline-dark">
+                            <i class="material-symbols-rounded me-1">arrow_back</i> Back to Rooms
+                        </a>
+                    </div>
         </div>
     </div>
-</div>
-
-<div class="fixed-plugin">
-    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2" title="Add new Room" href="{% url 'add_room' %}">
-        <i class="material-symbols-rounded py-2">add</i>
-    </a>
 </div>
 
 <script>
@@ -109,6 +106,26 @@
                 bsAlert.close();
             });
         }, 5000);
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Make room table rows clickable
+        document.querySelectorAll('.room-row').forEach(function (row) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', function () {
+                window.location.href = row.dataset.href;
+            });
+        });
     });
 </script>
 {% endblock %}

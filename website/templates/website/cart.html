@@ -85,7 +85,7 @@
         <div class="col-md-5">
             <div class="p-4 rounded-3 shadow-sm bg-white sticky-top" style="top: 20px;">
                 <h4 class="mb-4 pb-2 border-bottom">Order Summary</h4>
-                <form method="post" action="#">
+                <form method="post" action="{% url 'confirm_order_view' %}">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="customer_name" class="form-label fw-semibold">Your Name</label>
@@ -99,20 +99,48 @@
                         <label for="room_number" class="form-label fw-semibold">Room Number</label>
                         <input type="text" class="form-control py-2" id="room_number" name="room_number" required>
                     </div>
-                    
+                    <div class="mb-3">
+                        <label for="special_request" class="form-label fw-semibold">Special Request</label>
+                        <textarea class="form-control" id="special_request" name="special_request" rows="3" placeholder="Write any special instructions here..."></textarea>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="rush_order" name="rush_order" value="true">
+                        <label class="form-check-label fw-semibold" for="rush_order">
+                            Rush Order (extra priority)
+                        </label>
+                    </div>
                     <div class="order-summary border-top pt-3">
+                        {# Display Subtotal #}
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Items ({{ total_quantity }}):</span>
                             <span>Rs. {{ subtotal }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Tax (13%):</span>
-                            <span>Rs. {% widthratio subtotal 1 0.13 %}</span>
-                        </div>
-                        <div class="d-flex justify-content-between fw-bold fs-5 mt-3 pt-2 border-top">
-                            <span>Total:</span>
-                            <span class="text-dark">Rs. {% widthratio subtotal 1 1.13 %}</span>
-                        </div>
+
+                            {# 13% VAT #}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">VAT (13%):</span>
+                                <span>
+                                    Rs. {% widthratio subtotal 100 13 %}
+                                </span>
+                            </div>
+
+                            {# 10% Service Tax #}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Service Tax (10%):</span>
+                                <span>
+                                    Rs. {% widthratio subtotal 100 10 %}
+                                </span>
+                            </div>
+
+                            {# Final Total = subtotal + VAT + Service Tax #}
+                            <div class="d-flex justify-content-between fw-bold fs-5 mt-3 pt-2 border-top">
+                                <span>Total:</span>
+                                <span class="text-dark">
+                                    Rs. {% widthratio subtotal 100 123 %}
+                                </span>
+                            </div>
+
                     </div>
                     
                     <button type="submit" class="btn btn-dark w-100 mt-4 py-2 fw-bold">
