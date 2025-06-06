@@ -6,6 +6,7 @@ app_name = 'menuitem'
 urlpatterns = [
     path('staff/available_items/', views.available_items, name='staff_available_items'),
     path('admin/available_items/', views.available_items, name='admin_available_items'),
+    path('admin/delete-all-items/', views.clear_all_items, name='clear_all_items'),
     path('staff/view-menu-item/<id>/', views.view_item, name='staff_view_item'),
     path('admin/view-menu-item/<id>/', views.view_item, name='admin_view_item'),
     path('staff/update-menu-item/<item_id>/', views.update_item, name='staff_update_item'),

@@ -1,0 +1,56 @@
+{% extends 'user_admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-gradient-dark text-white">
+            <h4 class="mb-0" style="color: #fff;">Payment Details</h4>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-striped">
+                <tr>
+                    <th>Order ID:</th>
+                    <td>{{ payment.order.id }}</td>
+                </tr>
+                <tr>
+                    <th>Table Number:</th>
+                    <td>{{ payment.order.table.table_number }}</td>
+                </tr>
+                <tr>
+                    <th>Amount:</th>
+                    <td>Rs. {{ payment.amount }}</td>
+                </tr>
+                <tr>
+                    <th>Payment Type:</th>
+                    <td>{{ payment.payment_type|title }}</td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td>
+                        {% if payment.status == "Completed" %}
+                            <span class="badge bg-success">Completed</span>
+                        {% elif payment.status == "Pending" %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% else %}
+                            <span class="badge bg-danger">Failed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Date:</th>
+                    <td>{{ payment.created_at|date:"F j, Y, g:i a" }}</td>
+                </tr>
+            </table>
+
+            <!-- Back Button -->
+            <div class="mt-4 text-end">
+                <a href="{% url 'admin_all_payments' %}" class="btn btn-outline-dark">
+                    <i class="material-symbols-rounded me-1">arrow_back</i> Back to Payments
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

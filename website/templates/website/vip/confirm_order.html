@@ -1,0 +1,195 @@
+{% extends 'website/vip/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Order Confirmation</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <div class="text-center">
+                        <i class="material-symbols-rounded text-dark display-1 mb-3">shopping_cart_checkout</i>
+                        <h5 class="mb-4">Please review your order</h5>
+                        
+                        <!-- Order Items Section -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Order Items ({{ total_quantity }})</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 50%">Item</th>
+                                                <th class="text-center">Qty</th>
+                                                <th class="text-end">Price</th>
+                                                <th class="text-end">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in order_items %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if item.image %}
+                                                        <img src="{{ item.image }}" alt="{{ item.name }}" 
+                                                             class="rounded me-3" width="60" height="60" style="object-fit: cover;">
+                                                        {% else %}
+                                                        <img src="{% static 'images/placeholder.png' %}" alt="No image" 
+                                                             class="rounded me-3" width="60" height="60" style="object-fit: cover;">
+                                                        {% endif %}
+                                                        <div>
+                                                            <h6 class="mb-1">{{ item.name }}</h6>
+                                                            {% if item.special_requests %}
+                                                            <small class="text-muted">Note: {{ item.special_requests }}</small>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">{{ item.quantity }}</td>
+                                                <td class="text-end">Rs. {{ item.price }}</td>
+                                                <td class="text-end">Rs. {{ item.subtotal }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Order Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>Rs. {{ subtotal }}</span>
+                                </div>
+                                
+                                {% if discount_amount > 0 %}
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Discount ({{ discount_percent }}%):</span>
+                                    <span>- Rs. {{ discount_amount }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal After Discount:</span>
+                                    <span>Rs. {{ subtotal_after_discount }}</span>
+                                </div>
+                                {% endif %}
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>VAT (13%):</span>
+                                    <span>Rs. {{ vat_amount }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Service Tax ({{ service_charge_percent }}%):</span>
+                                    <span>Rs. {{ service_tax }}</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between fw-bold fs-5 mt-3 pt-2 border-top">
+                                    <span>Total Amount:</span>
+                                    <span class="text-dark">Rs. {{ total_with_tax }}</span>
+                                </div>
+                            </div>
+
+                            
+                        </div>
+
+                        <!-- Customer Details -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Customer Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Name:</span>
+                                        <span>{{ customer_name }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Table Number:</span>
+                                        <span>{{ table_number }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Room Number:</span>
+                                        <span>{{ room_number }}</span>
+                                    </li>
+                                    {% if is_vip_room %}
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Room Type:</span>
+                                        <span class="text-warning fw-bold">VIP Room</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Room Type:</span>
+                                        <span>Normal</span>
+                                    </li>
+                                    {% endif %}
+
+                                    {% if is_rush %}
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Priority:</span>
+                                        <span class="text-danger">Rush Order</span>
+                                    </li>
+                                    {% endif %}
+                                    {% if special_requests %}
+                                    <li class="list-group-item">
+                                        <span class="fw-bold">Special Requests:</span>
+                                        <p class="mt-2">{{ special_requests }}</p>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Confirmation Form -->
+                        <form method="post" action="{% url 'vip_process_order' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="customer_name" value="{{ customer_name }}">
+                            <input type="hidden" name="table_number" value="{{ table_number }}">
+                            <input type="hidden" name="room_number" value="{{ room_number }}">
+                            <input type="hidden" name="special_requests" value="{{ special_requests }}">
+                            <input type="hidden" name="is_rush" value="{{ is_rush|yesno:'true,false' }}">
+                            
+                            <div class="alert alert-warning text-start" role="alert">
+                                <strong>Please confirm:</strong> Once placed, orders cannot be modified. 
+                                Cancellations may incur a 30% fee.
+                            </div>
+                            
+                            <div class="d-flex justify-content-center mt-4">
+                                <a href="{% url 'vip_cart' %}" class="btn btn-outline-secondary me-3 px-4">
+                                    <i class="material-symbols-rounded me-1">arrow_back</i> Back to Cart
+                                </a>
+                                <button type="submit" class="btn btn-dark px-4">
+                                    <i class="material-symbols-rounded me-1">check</i> Confirm Order
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+    .card {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

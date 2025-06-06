@@ -1,0 +1,100 @@
+{% extends 'user_staff/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm rounded-4 p-4">
+        <h3 class="mb-4 text-center">Order #{{ order.id }} Details</h3>
+
+        <table class="table table-borderless">
+    <tbody>
+        <tr><th class="text-end">Customer Name:</th><td>{{ order.customer_name|default:"N/A" }}</td></tr>
+        <tr><th class="text-end">VIP Status:</th>
+            <td>
+                {% if order.order_type == 'vip' %}
+                    <span class="text-success fw-bold">Yes (VIP)</span>
+                {% else %}
+                    <span class="text-danger">No (Normal)</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr><th class="text-end">Rush Order:</th>
+            <td>
+                {% if order.is_rush %}
+                    <span class="text-danger fw-bold">Yes</span>
+                {% else %}
+                    <span class="text-muted">No</span>
+                {% endif %}
+            </td>
+        </tr>
+       
+
+        <tr><th class="text-end">Table:</th><td>
+        {% if order.status == 'PENDING' %}
+            <span class="badge bg-secondary">Pending</span>
+        {% elif order.status == 'CONFIRMED' %}
+            <span class="badge bg-info text-dark">Confirmed</span>
+        {% elif order.status == 'PREPARING' %}
+            <span class="badge bg-warning text-dark">Preparing</span>
+        {% elif order.status == 'READY' %}
+            <span class="badge bg-primary">Ready to Serve</span>
+        {% elif order.status == 'SERVED' %}
+            <span class="badge bg-success">Served</span>
+        {% elif order.status == 'PAID' %}
+            <span class="badge bg-success">Paid</span>
+        {% elif order.status == 'CANCELLED' %}
+            <span class="badge bg-danger">Cancelled</span>
+        {% else %}
+            <span class="badge bg-light text-dark">{{ order.get_status_display }}</span>
+        {% endif %}
+    </td></tr>
+        <tr><th class="text-end">Status:</th><td>{{ order.get_status_display }}</td></tr>
+        <tr><th class="text-end">Paid:</th>
+            <td>
+                {% if order.is_paid %}
+                    <span class="text-success">Yes</span>
+                {% else %}
+                    <span class="text-danger">No</span>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr><th>Subtotal:</th><td>Rs. {{ order.original_subtotal }}</td></tr>
+        <tr><th>Discount:</th><td class="text-danger">{% if order.vip_discount > 0 %}
+                   - Rs. {{ order.vip_discount }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}</td></tr>
+
+        <tr><th>13% VAT:</th><td>Rs. {{ order.vat_amount }}</td></tr>
+        <tr><th>Service Charge 
+        <small class="text-muted">
+            (
+            {% if order.order_type == 'vip' and order.is_rush %}
+                25% VIP + Rush
+            {% elif order.order_type == 'vip' %}
+                20% VIP
+            {% elif order.is_rush %}
+                15% Rush
+            {% else %}
+                10% Normal
+            {% endif %}
+            )
+        </small>
+    </th><td>Rs. {{ order.service_charge }}</td></tr>
+        <tr class="table-primary"><th>Grand Total:</th><td><strong>Rs. {{ order.total_amount }}</strong></td></tr>
+
+        <tr><th class="text-end">Created:</th><td>{{ order.created_at }}</td></tr>
+        <tr><th class="text-end">Updated:</th><td>{{ order.updated_at }}</td></tr>
+        <tr><th class="text-end">Special Requests:</th><td>{{ order.special_requests|default:"None" }}</td></tr>
+    </tbody>
+</table>
+
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'staff_all_orders_view' %}" class="btn btn-outline-primary rounded-pill px-4">Back to Orders</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

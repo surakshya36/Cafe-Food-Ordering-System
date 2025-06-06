@@ -1,0 +1,70 @@
+{% extends 'user_admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-danger shadow-danger border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Delete Order</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <div class="text-center">
+                        <p class="mb-4">Are you sure you want to delete the following order?</p>
+
+                        <h5 class="mb-3">Order ID: {{ order.id }}</h5>
+                        <p class="mb-2"><strong>Customer:</strong> {{ order.customer_name|default:"N/A" }}</p>
+                        <p class="mb-2"><strong>Status:</strong> 
+                            {% if order.status == 'CANCELLED' %}
+                                <span class="badge bg-gradient-danger">Cancelled</span>
+                            {% elif order.status == 'PAID' %}
+                                <span class="badge bg-gradient-success">Completed</span>
+                            {% elif order.status == 'CONFIRMED' %}
+                                <span class="badge bg-gradient-info">Confirmed</span>
+                            {% elif order.status == 'PREPARING' %}
+                                <span class="badge bg-gradient-warning text-dark">Preparing</span>
+                            {% elif order.status == 'READY' %}
+                                <span class="badge bg-gradient-primary">Ready</span>
+                            {% elif order.status == 'SERVED' %}
+                                <span class="badge bg-gradient-dark">Served</span>
+                            {% else %}
+                                <span class="badge bg-gradient-secondary">Pending</span>
+                            {% endif %}
+                        </p>
+
+                        <p class="mb-2"><strong>Type:</strong>
+                            {% if order.is_vip and order.is_rush %}
+                                <span class="badge bg-warning text-dark">VIP + Rush</span>
+                            {% elif order.is_vip %}
+                                <span class="badge bg-warning text-dark">VIP</span>
+                            {% elif order.is_rush %}
+                                <span class="badge bg-danger">Rush</span>
+                            {% else %}
+                                <span class="badge bg-success">Normal</span>
+                            {% endif %}
+                        </p>
+
+                        <p class="mb-2"><strong>Total Amount:</strong> Rs. {{ order.total_amount_display }}</p>
+
+                        <form method="post" action="{% url 'admin_order_delete' order.id %}">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-center mt-4">
+                                <a href="{% url 'admin_all_orders_view' %}" class="btn btn-outline-secondary me-3">
+                                    <i class="material-symbols-rounded me-1">cancel</i> Cancel
+                                </a>
+                                <button type="submit" class="btn bg-gradient-danger">
+                                    <i class="material-symbols-rounded me-1">delete</i> Confirm Delete
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

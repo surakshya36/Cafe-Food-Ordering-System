@@ -52,6 +52,7 @@ EXTERNAL_APPS=[
     'orders',
     'payments',
     'website',
+    'feedback',
 ]
 INSTALLED_APPS += EXTERNAL_APPS
 
@@ -174,3 +175,6 @@ AUTHENTICATION_BACKENDS = [
 #     '192.168.56.1'
 # ]
 # DEBUG = True 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 week (seconds)
+SESSION_SAVE_EVERY_REQUEST = True  # optional, saves session expiry date on every request
+

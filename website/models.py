@@ -6,6 +6,7 @@ import uuid
 class Cart(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     completed = models.BooleanField(default=False)
+    cart_type = models.CharField(max_length=10, choices=[('normal', 'Normal'), ('vip', 'VIP')], default='normal')
     session_id = models.CharField(max_length=100, null= True, blank=True)
 
     def __str__(self):
@@ -28,7 +29,7 @@ class CartItem(models.Model):
     item = models.ForeignKey(MenuItem, on_delete=models.CASCADE, related_name="items", null=True, blank=True)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cartitems")
     quantity = models.IntegerField(default=0)
-
+    special_requests = models.TextField(blank=True, null=True)  
     def __str__(self):
         return self.item.name
     

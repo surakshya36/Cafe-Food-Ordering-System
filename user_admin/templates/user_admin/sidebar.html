@@ -52,9 +52,15 @@
         </a>
       </li>
       <li class="nav-item">
-          <a class="nav-link text-dark" href="#">
+          <a class="nav-link text-dark {% if '/orders/' in request.path %}active bg-gradient-dark text-white{% endif %}" href="{% url 'admin_all_orders_view' %}">
               <i class="material-symbols-rounded opacity-5">shopping_cart</i>
               <span class="nav-link-text ms-1">Orders</span>
+          </a>
+      </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark {% if '/payments/' in request.path %}active bg-gradient-dark text-white{% endif %}" href="{% url 'admin_all_payments' %}">
+              <i class="material-symbols-rounded opacity-5">payments</i>
+              <span class="nav-link-text ms-1">Payments</span>
           </a>
       </li>
 
@@ -74,7 +80,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark {% if request.path == 'admin/logout/' %}active{% endif %}" href="{% url 'admin_logout' %}">
+        <a class="nav-link text-dark {% if request.path == '/admin-logout/' %}active{% endif %}" href="{% url 'admin_logout' %}">
           <i class="material-symbols-rounded opacity-5">logout</i>
           <span class="nav-link-text ms-1">Log Out</span>
         </a>

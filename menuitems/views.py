@@ -5,7 +5,7 @@ from .models import MenuItem
 from categories.models import Category
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-
+from .decorators import admin_required
 
 @login_required(login_url='/login/')
 def available_items(request):
@@ -280,4 +280,10 @@ def delete_item(request, id):
         'item': item,
         'current_section': 'Menu / Delete Item',
     })
-
+from django.views.decorators.http import require_POST
+@admin_required
+@require_POST
+def clear_all_items(request):
+    MenuItem.objects.all().delete()
+    messages.success(request, "All menu items have been deleted.")
+    return redirect('admin_available_items')

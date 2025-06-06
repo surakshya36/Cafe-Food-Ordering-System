@@ -1,0 +1,282 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Order Confirmation #{{ order.id }}</h4>
+                <span id="order-status-badge" class="badge bg-{% if order.status == 'CONFIRMED' %}primary{% elif order.status == 'PREPARING' %}warning{% elif order.status == 'READY' %}info{% elif order.status == 'SERVED' %}success{% elif order.status == 'CANCELLED' %}danger{% else %}secondary{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="alert alert-success">
+                <div class="d-flex align-items-center">
+                    <i class="material-symbols-rounded me-2">check_circle</i>
+                    <h5 class="mb-0">Thank you for your order!</h5>
+                </div>
+                <p class="mt-2 mb-0">Your order has been received and is being processed.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Order Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-bold">Order Number:</span>
+                                    <span>#{{ order.id }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-bold">Date:</span>
+                                    <span>{{ order.created_at|date:"F j, Y H:i" }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-bold">Customer Name:</span>
+                                    <span>{{ order.customer_name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-bold">Table Number:</span>
+                                    <span>
+                                        {% if order.table and order.table.table_number %}
+                                             {{ order.table.table_number }}
+                                        {% else %}
+                                           N/A
+                                        {% endif %}
+                                    </span>
+
+
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-bold">Room Number:</span>
+                                <span>
+                                    {% if order.table and order.table.room and order.table.room.name %}
+                                        {{ order.table.room.name }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </span>
+                                </li>
+                                {% if order.is_rush %}
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-bold">Priority:</span>
+                                    <span class="text-danger">Rush Order</span>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Payment Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Subtotal:</span>
+                                    <span>Rs. {{ subtotal_after_discount|floatformat:2 }}</span>
+                                </li>
+
+                                {% if vip_discount and vip_discount > 0 %}
+                                <li class="list-group-item d-flex justify-content-between text-danger">
+                                    <span>Discount:</span>
+                                    <span>- Rs. {{ vip_discount|floatformat:2 }}</span>
+                                </li>
+                                {% endif %}
+
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>VAT (13%):</span>
+                                    <span>Rs. {{ vat|floatformat:2 }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Service Tax ({% if is_rush %}15{% else %}10{% endif %}%):</span>
+                                    <span>Rs. {{ service_tax|floatformat:2 }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between border-top pt-2">
+                                    <span class="fw-bold">Total Amount:</span>
+                                    <span class="fw-bold">Rs. {{ grand_total|floatformat:2 }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-bold">Payment Status:</span>
+                                    <span class="badge bg-{% if order.is_paid %}success{% else %}warning{% endif %}">
+                                        {% if order.is_paid %}Paid{% else %}Pending{% endif %}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ordered Items Table -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Ordered Items</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if item.menu_item.image %}
+                                            <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}" 
+                                                 class="rounded me-3" width="60" height="60" style="object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-1">{{ item.menu_item.name }}</h6>
+                                                {% if item.special_requests %}
+                                                <small class="text-muted">Note: {{ item.special_requests }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">Rs. {{ item.unit_price|floatformat:2 }}</td>
+                                    <td class="text-end">Rs. {{ item.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {% if order.special_requests %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Special Requests</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ order.special_requests }}</p>
+                </div>
+            </div>
+            {% endif %}
+            <!-- Action Buttons -->
+            <div class="text-end mt-4">
+                <a href="{% url 'customer_menu' %}" class="btn btn-outline-secondary me-2">
+                    <i class="material-symbols-rounded align-middle">arrow_back</i>
+                    Continue Browsing Menu
+                </a>
+                 {% if order.status not in 'SERVED,CANCELLED' %}
+                <form action="" method="post" class="d-inline" 
+                    onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="material-symbols-rounded align-middle">cancel</i>
+                        Cancel Order
+                    </button>
+                </form>
+                {% endif %}
+                <!-- Your "Make Payment" button -->
+                {% if not order.is_paid %}
+                <button id="khalti-payment-btn" class="btn btn-success">
+                    <i class="material-symbols-rounded align-middle">payment</i>
+                    Make Payment
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
+
+{% block extra_scripts %}
+
+<script src="https://khalti.com/static/khalti-checkout.js"></script>
+
+<script>
+// Fake/mock Khalti checkout object
+class MockKhaltiCheckout {
+    constructor(config) {
+        this.config = config;
+    }
+
+    show({ amount }) {
+        // Simulate a small delay
+        setTimeout(() => {
+            const fakePayload = {
+                token: "fake-token-123456",
+                amount: amount,
+            };
+
+            // Simulate success callback
+            alert("Simulated Payment: Success ✅");
+            this.config.eventHandler.onSuccess(fakePayload);
+        }, 1000);
+    }
+}
+
+document.getElementById("khalti-payment-btn").addEventListener("click", function () {
+    const amountInPaisa = Math.round({{ grand_total|floatformat:2 }} * 100);
+
+    const mockKhaltiConfig = {
+        publicKey: "mock-public-key",
+        productIdentity: "{{ order.id }}",
+        productName: "Order #{{ order.id }}",
+        productUrl: window.location.href,
+        eventHandler: {
+            onSuccess(payload) {
+                // Send to your backend verification view (as if it's a real token)
+                fetch("{% url 'khalti_payment_verify' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    body: JSON.stringify({
+                        token: payload.token,
+                        amount: payload.amount,
+                        order_id: {{ order.id }}
+                    }),
+                })
+                .then(res => res.json())
+                .then(result => {
+                    alert(result.status === "success" ? "Mock payment verified ✅" : "Mock payment failed ❌");
+                    window.location.href = "../../my-order/";
+                })
+                .catch(() => {
+                    alert("Mock payment verification error.");
+                    window.location.href = "./../my-order/";
+                });
+            },
+            onError(error) {
+                console.error("Mock Payment Error:", error);
+            },
+            onClose() {
+                console.log("Mock widget closed."); 
+            },
+        },
+        paymentPreference: [],
+    };
+
+    const checkout = new MockKhaltiCheckout(mockKhaltiConfig);
+    checkout.show({ amount: amountInPaisa });
+});
+</script>
+{% endblock %}
+
+
+{% endblock %}

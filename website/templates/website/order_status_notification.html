@@ -1,0 +1,141 @@
+{% extends "website/base.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="flex items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Order Notifications</h2>
+        {% if notifications %}
+        <span id="notification-badge"
+              class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+            {{ unread_notification_count }} new
+        </span>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div class="notification-container">
+                    {% for n in notifications %}
+                    <div class="notification-block {% if not n.is_read %}unread{% endif %}">
+                        <div class="notification-content">
+                            <span class="emoji">🍽️</span>
+                            <div>
+                                <p class="notification-text">
+                                    {{ n.message }}
+                                </p>
+                                <p class="notification-time">
+                                    <i class="fas fa-clock"></i> {{ n.created_at|date:"Y-m-d H:i" }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}
+                    <hr class="divider">
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No notifications</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">You'll see important updates about your orders here.</p>
+        </div>
+    {% endif %}
+</div>
+<style>
+.notification-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 1rem;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.notification-block {
+    padding: 1rem 0;
+}
+
+.unread {
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.emoji {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.notification-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1c1e21;
+    margin: 0 0 0.3rem;
+}
+
+.notification-time {
+    font-size: 0.85rem;
+    color: #606770;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 0.5rem 0;
+}
+
+</style>
+
+{% endblock %}
+
+<!-- {% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function fetchNotifications() {
+        fetch("{% url 'fetch_unread_notifications' %}")
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                const badge = document.getElementById('notification-badge');
+                if (badge) {
+                    if (data.unread_count > 0) {
+                        badge.textContent = data.unread_count;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching notifications:", error);
+                // Optional: Show error to user
+                // showToast("Failed to load notifications", 'error');
+            });
+    }
+
+    // Initial fetch
+    fetchNotifications();
+    
+    // Refresh every 10 seconds
+    const notificationInterval = setInterval(fetchNotifications, 10000);
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        clearInterval(notificationInterval);
+    });
+});
+</script> -->
+<!-- {% endblock %} -->

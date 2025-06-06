@@ -1,0 +1,166 @@
+{% extends 'user_staff/base.html' %}
+{% load static %}
+
+{% block content %}
+{% if messages %}
+<div class="position-fixed end-0 mt-5" style="z-index: 9999; top: 70px;">
+    {% for message in messages %}
+    <div class="alert alert-dismissible fade show mx-3
+                {% if message.tags == 'success' %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}" 
+         role="alert">
+        <span class="text-white">{{ message }}</span>
+        <button type="button" class="btn-close text-white" data-bs-dismiss="alert" aria-label="Close">
+            <i class="material-symbols-rounded">close</i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center px-3">
+                        <h6 class="text-white text-capitalize">Orders</h6>
+                    </div>
+                </div>
+                
+                <div class="card-body px-0 pb-2">
+                    <!-- Order Type Tabs -->
+                    <div class="d-flex border-bottom mb-4 px-3">
+                        <ul class="nav nav-tabs" id="ordersTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a href="{% url 'staff_all_orders_view' %}" 
+                                   class="nav-link {% if active_tab == 'all' %}active fw-bold{% endif %}">
+                                    <i class="material-symbols-rounded me-1">list_alt</i> All Orders
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{% url 'staff_vip_orders_view' %}" 
+                                   class="nav-link {% if active_tab == 'vip' %}active fw-bold{% endif %}">
+                                    <i class="material-symbols-rounded me-1">stars</i> VIP Orders
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{% url 'staff_rush_orders_view' %}" 
+                                   class="nav-link {% if active_tab == 'rush' %}active fw-bold{% endif %}">
+                                    <i class="material-symbols-rounded me-1">bolt</i> Rush Orders
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{% url 'staff_normal_orders_view' %}" 
+                                   class="nav-link {% if active_tab == 'normal' %}active fw-bold{% endif %}">
+                                    <i class="material-symbols-rounded me-1">restaurant</i> Normal Orders
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Orders Table -->
+                    <div class="table-responsive p-3">
+                        <table class="table align-items-center mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder ps-4">SN</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder ps-4">ID</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder ps-4">Room</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Table</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Status</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Type</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Discount</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Paid</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Total</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Created</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0;
+    margin-right: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: #6c757d;
+}
+
+.nav-tabs .nav-link.active {
+    color: #5e72e4;
+    background-color: transparent;
+    border-bottom: 2px solid #5e72e4;
+    font-weight: 600;
+}
+
+.table thead th {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background-color: #f8f9fa;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.table td, .table th {
+    white-space: nowrap;
+    padding: 1rem 0.75rem;
+}
+
+.badge {
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    border-radius: 0.25rem;
+}
+
+.material-symbols-rounded {
+    font-size: 1.1em;
+    vertical-align: middle;
+}
+</style>
+
+<script>
+function fetchAllOrders() {
+    const activeTab = "{{ active_tab }}";  // Comes from Django
+
+    fetch(`{% url 'staff_all_orders_ajax' %}?tab=${activeTab}`, {
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("orders-table-body").innerHTML = data.html;
+    })
+    .catch(error => {
+        console.error("Error fetching orders:", error);
+    });
+}
+
+fetchAllOrders();
+setInterval(fetchAllOrders, 5000);
+</script>
+
+{% endblock %}

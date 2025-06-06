@@ -25,34 +25,27 @@ class Table(models.Model):
         ('RESERVED', 'Reserved'),
         ('MAINTENANCE', 'Maintenance'), 
     )
-    
+
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='tables')
     table_number = models.CharField(max_length=10)
     seats = models.PositiveIntegerField()
     status = models.CharField(max_length=15, choices=TABLE_STATUS, default='AVAILABLE')
     x_position = models.FloatField(null=True, blank=True)
     y_position = models.FloatField(null=True, blank=True)
-    current_order = models.OneToOneField(
-        'orders.Order', 
-        null=True, 
-        blank=True, 
-        on_delete=models.SET_NULL,
-        related_name='active_table'
-    )
-    
+
     class Meta:
         ordering = ['room', 'table_number']
         unique_together = ['room', 'table_number']
-        
+
     def __str__(self):
         return f"Table {self.table_number} ({self.room})"
-    
+
+    @property
+    def active_orders(self):
+        return self.orders.exclude(status__in=['PAID', 'CANCELLED'])
+
     @property
     def active_payment(self):
-        if self.current_order:
-            try:
-                from payments.models import Payment
-                return Payment.objects.filter(order=self.current_order).first()
-            except ImportError:
-                return None
-        return None
+        from payments.models import Payment
+        latest_order = self.active_orders.first()
+        return Payment.objects.filter(order=latest_order).first() if latest_order else None

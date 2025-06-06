@@ -1,0 +1,105 @@
+{% extends 'user_admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Success/Error Messages -->
+{% if messages %}
+<div class="position-fixed end-0 mt-5" style="z-index: 9999; top: 70px;">
+    {% for message in messages %}
+    <div class="alert alert-dismissible fade show mx-3
+                {% if message.tags == 'success' %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}" 
+         role="alert">
+        <span class="text-white">{{ message }}</span>
+        <button type="button" class="btn-close text-white" data-bs-dismiss="alert" aria-label="Close">
+            <i class="material-symbols-rounded">close</i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center px-3">
+                        <h6 class="text-white text-capitalize ps-3">Payments</h6>
+                        <a href="{% url 'clear_all_payments' %}" class="btn btn-sm btn-outline-light" onclick="return confirm('Are you sure you want to clear ALL payments?')">
+                            <i class="material-symbols-rounded">delete</i> Clear All
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center justify-content-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">S.N.</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Order ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Customer Name</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Order Type</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Table Number</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Amount</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Payment Type</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Transaction ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Date</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td class="ps-4"><p class="text-xs font-weight-bold mb-0">{{ forloop.counter }}</p></td>
+                                    <td><p class="text-sm font-weight-bold mb-0">{{ payment.order_id }}</p></td>
+                                    <td><p class="text-sm mb-0">{{ payment.customer_name }}</p></td>
+                                    <td><p class="text-sm mb-0">{{ payment.order_type }}</p></td>
+                                    <td><p class="text-sm mb-0">{{ payment.table_number }}</p></td>
+                                    <td><p class="text-sm font-weight-bold mb-0">Rs. {{ payment.amount }}</p></td>
+                                    <td><span class="badge badge-sm bg-gradient-info">{{ payment.method }}</span></td>
+                                    <td><p class="text-sm mb-0">{{ payment.transaction_id }}</p></td>
+                                    <td>
+                                        <span class="badge badge-sm 
+                                            {% if payment.status == 'Completed' %}bg-gradient-success
+                                            {% elif payment.status == 'Pending' %}bg-gradient-warning
+                                            {% else %}bg-gradient-danger{% endif %}">
+                                            {{ payment.status }}
+                                        </span>
+                                    </td>
+                                    <td><p class="text-sm mb-0">{{ payment.created_at|date:"M d, Y H:i" }}</p></td>
+                                    <td class="align-middle text-center">
+                                        <a href="{% url 'admin_view_payment_detail' payment.payment_id %}" class="btn btn-sm bg-gradient-primary me-1 mb-0" title="View">
+                                            <i class="material-symbols-rounded text-sm">visibility</i>
+                                        </a>
+                                        <a href="{% url 'admin_delete_payment' payment.payment_id %}" class="btn btn-sm bg-gradient-danger mb-0" title="Delete">
+                                            <i class="material-symbols-rounded text-sm">delete</i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="11" class="text-center py-4">No payments available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}

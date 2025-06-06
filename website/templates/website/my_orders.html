@@ -1,0 +1,97 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <h4 class="mb-4">🧾 My Order History</h4>
+    <div class="alert alert-warning" role="alert">
+  <strong>Note:</strong> You can only edit orders while they are <strong>PENDING</strong>. Once an order is confirmed or in progress, editing is no longer possible.
+</div>
+
+  {% if orders %}
+    <div class="d-flex justify-content-end mb-3">
+      <form method="post" action="" onsubmit="return confirm('Are you sure you want to pay for all pending orders?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">
+          💵 Make Payment for All
+        </button>
+      </form>
+    </div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-body px-0 pb-2">
+      <div class="table-responsive p-3">
+        <table class="table align-items-center mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4">Order ID</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Number of Items</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Amount (₹)</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Is Paid</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td class="ps-4">
+                <p class="text-xs font-weight-bold mb-0">#{{ order.id }}</p>
+              </td>
+              <td>
+                <p class="text-xs mb-0">{{ order.items.count }}</p>
+              </td>
+              <td>
+                <p class="text-xs font-weight-bold mb-0">{{ order.total_amount }}</p>
+              </td>
+              <td>
+                <span class="badge 
+                  {% if order.status == 'PENDING' %}bg-gradient-warning
+                  {% elif order.status == 'COMPLETED' %}bg-gradient-success
+                  {% elif order.status == 'CANCELLED' %}bg-gradient-danger
+                  {% else %}bg-gradient-secondary{% endif %}">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td>
+                {% if order.is_paid %}
+                <span class="badge bg-gradient-success">Yes</span>
+                {% else %}
+                <span class="badge bg-gradient-danger">No</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-primary me-1" title="View Order">
+                  <i class="material-symbols-rounded text-sm">visibility</i>
+                </a>
+                {% if order.status == 'PENDING' %}
+                <span class="btn btn-sm btn-info disabled" title="Editing disabled after confirmation">
+                  <i class="material-symbols-rounded text-sm">edit</i>
+                </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4">You have not placed any orders yet.</td>
+            </tr>
+            {% endfor %}
+
+            {% if orders %}
+            <tr class="fw-bold bg-light">
+              <td colspan="2" class="text-end">Total</td>
+              <td>{{ total_items }}</td>
+              <td>{{ total_amount }}</td>
+              <td colspan="3"></td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

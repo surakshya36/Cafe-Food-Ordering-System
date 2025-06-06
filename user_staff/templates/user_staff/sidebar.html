@@ -32,7 +32,7 @@
         </a>
       </li>
        <li class="nav-item">
-          <a class="nav-link text-dark" href="#">
+          <a class="nav-link text-dark {% if '/orders/' in request.path %}active bg-gradient-dark text-white{% endif %}" href="{% url 'staff_all_orders_view' %}">
               <i class="material-symbols-rounded opacity-5">shopping_cart</i>
               <span class="nav-link-text ms-1">Orders</span>
           </a>

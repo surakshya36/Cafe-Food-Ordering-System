@@ -15,6 +15,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'home' %}#menucontrol">Menu</a>
                 </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="#">About</a>
                 </li>
@@ -32,16 +33,29 @@
                         </button>
                     </div>
                 </form>
-
+                     
                 
-                <div class="position-relative ms-3">
-                    <a class="nav-link p-0" href="{% url 'cart' %}" style="font-size: 1.5rem;">
-                        <i class="material-symbols-rounded">shopping_cart</i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
-                            {{total_quantity}}
-                        </span>
-                    </a>
-                </div>
+                <div class="position-relative ms-3 d-flex align-items-center">
+    <!-- Cart -->
+    <a class="nav-link p-0" href="{% url 'cart' %}" style="font-size: 1.5rem; position: relative;">
+        <i class="material-symbols-rounded">shopping_cart</i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+            {{ total_quantity }}
+        </span>
+    </a>
+   <a href="{% url 'order_status_notifications_view' %}" class="nav-link position-relative">
+    <i class="material-symbols-rounded">notifications</i>
+    <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+        0
+    </span>
+</a>
+    <!-- My Orders -->
+    <a href="{% url 'my_orders' %}" class="nav-link ms-3" style="font-weight: 500; font-size: 1rem;">
+        My Orders
+    </a>
+</div>
+
+
             </div>
         </div>
     </div>
@@ -58,3 +72,4 @@
         
     }
 </style>
+

@@ -1,0 +1,92 @@
+{% for order in orders %}
+<tr>
+    <td>{{ forloop.counter }}</td>  <!-- Serial number column -->
+
+    <td class="ps-4">{{ order.id|default:"N/A" }}</td>
+    
+    <td>
+        {% if order.table and order.table.room %}
+            {{ order.table.room.name }} ({{ order.table.room.get_room_type_display }})
+        {% else %}
+            N/A
+        {% endif %}
+    </td>
+
+    <td>{{ order.table_number_display }}</td>
+
+    <td>
+        {% if order.status == 'CANCELLED' %}
+            <span class="badge bg-gradient-danger">Cancelled</span>
+        {% elif order.status == 'PAID' %}
+            <span class="badge bg-gradient-success">Completed</span>
+        {% elif order.status == 'CONFIRMED' %}
+            <span class="badge bg-gradient-info">Confirmed</span>
+        {% elif order.status == 'PREPARING' %}
+            <span class="badge bg-gradient-warning text-dark">Preparing</span>
+        {% elif order.status == 'READY' %}
+            <span class="badge bg-gradient-primary">Ready</span>
+        {% elif order.status == 'SERVED' %}
+            <span class="badge bg-gradient-dark">Served</span>
+        {% else %}
+            <span class="badge bg-gradient-secondary">Pending</span>
+        {% endif %}
+    </td>
+
+    <!-- Order Type -->
+    <td>
+        {% if order.is_vip and order.is_rush %}
+            <span class="badge bg-warning text-dark">VIP + Rush</span>
+        {% elif order.is_vip %}
+            <span class="badge bg-warning text-dark">VIP</span>
+        {% elif order.is_rush %}
+            <span class="badge bg-danger">Rush</span>
+        {% else %}
+            <span class="badge bg-success">Normal</span>
+        {% endif %}
+    </td>
+
+    <!-- Discount -->
+    <td>
+        {% if order.vip_discount > 0 %}
+            <span class="badge bg-gradient-info">-Rs. {{ order.vip_discount }}</span>
+        {% else %}
+            <span class="badge bg-gradient-secondary">None</span>
+        {% endif %}
+    </td>
+
+    <td>
+        {% if order.is_paid %}
+            <span class="badge bg-gradient-success">Yes</span>
+        {% else %}
+            <span class="badge bg-gradient-danger">No</span>
+        {% endif %}
+    </td>
+
+    <td>Rs. {{ order.total_amount_display }}</td>
+
+    <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+
+    <td class="text-center align-middle">  <!-- Added align-middle class -->
+    {% if order.id %}
+        <div class="d-inline-flex align-items-center">  <!-- Wrapper div for alignment -->
+            <a href="{% url 'admin_order_detail_view' order.id %}" class="btn btn-sm bg-gradient-primary me-1" title="View">
+                <i class="material-symbols-rounded text-sm">visibility</i>
+            </a>
+            <a href="{% url 'admin_edit_order_status' order.id %}" class="btn btn-sm bg-gradient-info me-1" title="Edit">
+                <i class="material-symbols-rounded text-sm">edit</i>
+            </a>
+            <a href="{% url 'admin_order_delete' order.id %}" class="btn btn-sm bg-gradient-primary me-1" title="Edit">
+                <i class="material-symbols-rounded text-sm">delete</i>
+            </a>
+        </div>
+    {% else %}
+        <span class="text-muted small">No actions available</span>
+    {% endif %}
+</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="12" class="text-center">No orders found.</td>
+</tr>
+{% endfor %}
+

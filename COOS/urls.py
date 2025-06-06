@@ -25,6 +25,8 @@ from user_admin.views import *
 from categories.views import *
 from menuitems.views import *
 from tables.views import *
+from orders.views import *
+from payments.models import *
 
 
 
@@ -41,6 +43,9 @@ urlpatterns = [
     path('tables/', include('tables.urls')),
     path('website/', include('website.urls')),
     path('user-staff/', include('user_staff.urls')),
+    path('user-admin/', include('user_admin.urls')),
+    path('orders/', include('orders.urls')),
+    path('payments/', include('payments.urls')),
 
 ]
 

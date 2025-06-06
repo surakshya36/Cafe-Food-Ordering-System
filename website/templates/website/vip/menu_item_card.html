@@ -1,0 +1,233 @@
+{% extends 'website/vip/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Main Item Card - Side by Side Layout -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="menu-card d-flex">
+                <!-- Image on Left - Fixed Size Container -->
+                                <!-- Image on Left - Fixed Size Container -->
+                <div class="menu-img-container position-relative" style="overflow: visible;">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="menu-img" alt="{{ item.name }}">
+                    {% else %}
+                        <img src="{% static 'user_admin/img/placeholder.png' %}" class="menu-img" alt="No image">
+                    {% endif %}
+                    
+                    <!-- VIP/Today's Special Badge -->
+                {% if item.vip_status == 'VIP_ONLY' %}
+                    <div class="position-absolute" style="top: -60px; left: -35px; width: 160px; height: 160px; z-index: 10;">
+                        <img src="{% static 'website/img/vip.png' %}" alt="VIP" class="img-fluid h-100 w-100" style="object-fit: contain;">
+                    </div>
+                {% elif item.vip_status == 'TODAYS_SPECIAL' %}
+                    <div class="position-absolute" style="top: -20px; left: -20px; width: 100px; height: 100px; z-index: 10;">
+                        <img src="{% static 'website/img/today-only1.png' %}" alt="Today's Special" class="img-fluid h-100 w-100" style="object-fit: contain;">
+                    </div>
+                {% endif %}
+                </div>
+                
+                <!-- Details on Right -->
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ item.name }}</h5>
+                        <span class="menu-price">Rs. {{ item.price }}</span>
+                    </div>
+                    
+                    {% if item.vip_status == 'VIP_ONLY' %}
+                        <span class="badge vip-badge mb-3">VIP Only</span>
+                    {% elif item.vip_status == 'VIP_PRIORITY' %}
+                        <span class="badge vip-badge mb-3">VIP Priority</span>
+                    {% endif %}
+                    
+                    <p class="card-text text-muted mb-4">{{ item.description|default:"No description available." }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="prep-time"><i class="bi bi-clock"></i> {{ item.preparation_time }} mins</span>
+                        
+                        {% if item.is_available %}
+                            
+                                <button type="submit" class="btn btn-order" value="{{item.id}}">
+                                    <span class="material-symbols-rounded">shopping_cart</span> Add to Order
+                                </button>
+                            
+                        {% else %}
+                            <span class="text-danger small">Out of Stock</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Section (filtered to exclude VIP items) -->
+   {% if recommended_items %}
+<hr class="my-5">
+<div class="row">
+    <div class="col-12">
+        <h4 class="mb-4">Recommended for You</h4>
+    </div>
+    {% for rec_item in recommended_items %}
+        <div class="col-md-3 mb-4">
+            <a href="{% url 'vip_item_detail' rec_item.id %}" class="text-decoration-none text-dark">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="recommended-img-container position-relative">
+                        {% if rec_item.image %}
+                            <img src="{{ rec_item.image.url }}" class="card-img-top" alt="{{ rec_item.name }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image">
+                        {% endif %}
+                        
+                        <!-- VIP/Today's Special Badges -->
+                        {% if rec_item.vip_status == 'VIP_ONLY' %}
+                            <div class="position-absolute" style="top: -60px; left: -35px; width: 160px; height: 160px; z-index: 10;">
+                        <img src="{% static 'website/img/vip.png' %}" alt="VIP" class="img-fluid h-100 w-100" style="object-fit: contain;">
+                    </div>
+                        {% elif rec_item.vip_status == 'TODAYS_SPECIAL' %}
+                             <div class="position-absolute" style="top: -20px; left: -20px; width: 100px; height: 100px; z-index: 10;">
+                        <img src="{% static 'website/img/today-only1.png' %}" alt="Today's Special" class="img-fluid h-100 w-100" style="object-fit: contain;">
+                    </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title">{{ rec_item.name }}</h6>
+                        <p class="card-text text-muted small">{{ rec_item.preparation_time }} mins</p>
+                        <span class="text-danger">Rs. {{ rec_item.price }}</span>
+                        
+                        <!-- Optional: Add text badges under the price -->
+                        {% if rec_item.vip_status == 'VIP_ONLY' %}
+                            <div class="mt-2">
+                                <span class="badge bg-warning text-dark">VIP Only</span>
+                            </div>
+                        {% elif rec_item.vip_status == 'TODAYS_SPECIAL' %}
+                            <div class="mt-2">
+                                <span class="badge bg-danger text-white">Today's Special</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Add this near the bottom of your base.html -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            <!-- Message will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Main Item Card - Side by Side Layout */
+    .menu-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        background: white;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-direction: row;
+    }
+
+    /* Fixed size for main item image */
+    .menu-img-container {
+        width: 40%;
+        height: 400px; /* Fixed height */
+        overflow: hidden;
+    }
+
+    .menu-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Fixed size for recommended items images */
+    .recommended-img-container {
+        height: 180px;
+        overflow: hidden;
+    }
+    
+    .recommended-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-body {
+        width: 60%;
+        padding: 2rem;
+    }
+
+    /* Button Styling */
+    .btn-order {
+        background-color: #000;
+        color: white;
+        border: 2px solid #000;
+        padding: 0.5rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-order:hover {
+        background-color: transparent;
+        color: #000;
+        border: 2px solid #000;
+        transform: translateY(-2px);
+    }
+
+    /* Other Styles */
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .menu-price {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #d9230f;
+    }
+
+    .prep-time {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .vip-badge {
+        background-color: #ffc107;
+        color: #212529;
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+        font-size: 0.8em;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .menu-card {
+            flex-direction: column;
+        }
+        
+        .menu-img-container,
+        .card-body {
+            width: 100%;
+        }
+        
+        .menu-img-container {
+            height: 300px; /* Adjusted for mobile */
+        }
+    }
+</style>
+
+{% endblock %}

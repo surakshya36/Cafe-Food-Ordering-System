@@ -29,90 +29,375 @@
             </div>
           </a>
         </li>
-        <!-- <li class="nav-item px-3 d-flex align-items-center">
-          <a href="javascript:;" class="nav-link text-body p-0">
-            <i class="material-symbols-rounded fixed-plugin-button-nav">settings</i>
-          </a>
-        </li> -->
-        <li class="nav-item dropdown pe-3 d-flex align-items-center">
-          <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="material-symbols-rounded">notifications</i>
-          </a>
-          <ul class="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
-            <li class="mb-2">
-              <a class="dropdown-item border-radius-md" href="javascript:;">
-                <div class="d-flex py-1">
-                  <div class="my-auto">
-                    <img src="{% static 'user_staff/img/team-2.jpg' %}" class="avatar avatar-sm  me-3 ">
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="text-sm font-weight-normal mb-1">
-                      <span class="font-weight-bold">New message</span> from Laur
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">
-                      <i class="fa fa-clock me-1"></i>
-                      13 minutes ago
-                    </p>
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="mb-2">
-              <a class="dropdown-item border-radius-md" href="javascript:;">
-                <div class="d-flex py-1">
-                  <div class="my-auto">
-                    <img src="{% static 'user_staff/img/small-logos/logo-spotify.svg' %}" class="avatar avatar-sm bg-gradient-dark  me-3 ">
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="text-sm font-weight-normal mb-1">
-                      <span class="font-weight-bold">New album</span> by Travis Scott
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">
-                      <i class="fa fa-clock me-1"></i>
-                      1 day
-                    </p>
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item border-radius-md" href="javascript:;">
-                <div class="d-flex py-1">
-                  <div class="avatar avatar-sm bg-gradient-secondary  me-3  my-auto">
-                    <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                      <title>credit-card</title>
-                      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <g transform="translate(-2169.000000, -745.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                          <g transform="translate(1716.000000, 291.000000)">
-                            <g transform="translate(453.000000, 454.000000)">
-                              <path class="color-background" d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z" opacity="0.593633743"></path>
-                              <path class="color-background" d="M0,16.125 L0,32.25 C0,34.2297917 1.60354167,35.8333333 3.58333333,35.8333333 L39.4166667,35.8333333 C41.3964583,35.8333333 43,34.2297917 43,32.25 L43,16.125 L0,16.125 Z M19.7083333,26.875 L7.16666667,26.875 L7.16666667,23.2916667 L19.7083333,23.2916667 L19.7083333,26.875 Z M35.8333333,26.875 L28.6666667,26.875 L28.6666667,23.2916667 L35.8333333,23.2916667 L35.8333333,26.875 Z"></path>
-                            </g>
-                          </g>
-                        </g>
-                      </g>
-                    </svg>
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="text-sm font-weight-normal mb-1">
-                      Payment successfully completed
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">
-                      <i class="fa fa-clock me-1"></i>
-                      2 days
-                    </p>
-                  </div>
-                </div>
-              </a>
-            </li>
+        
+          <ul class="navbar-nav d-flex align-items-center ms-auto">
+  <!-- Notification Bell -->
+  <li class="nav-item dropdown mx-3">
+    <a href="#" class="nav-link text-body p-0 position-relative" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <i class="material-symbols-rounded fs-4">notifications</i>
+  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white text-xs" id="notification-count">
+    0
+  </span>
+</a>
+
+    <!-- Notification Dropdown -->
+     
+     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 px-2 py-2 custom-scrollbar" 
+              aria-labelledby="dropdownMenuButton" 
+              style="width: 490px; max-height: 300px;" 
+              id="notification-list">
+             
+            <!-- Notifications will be loaded by JavaScript -->
           </ul>
-        </li>
-        <li class="nav-item d-flex align-items-center">
-          <a href="../pages/sign-in.html" class="nav-link text-body font-weight-bold px-0">
-            <i class="material-symbols-rounded">account_circle</i>
-          </a>
-        </li>
-      </ul>
+
+  </li>
+
+  <!-- Profile Icon -->
+  <li class="nav-item d-flex align-items-center">
+    <a href="../pages/sign-in.html" class="nav-link text-body font-weight-bold p-0">
+      <i class="material-symbols-rounded fs-4">account_circle</i>
+    </a>
+  </li>
+</ul>
+
     </div>
   </div>
 </nav>
+<script>
+function handleNotificationClick(type, order_id) {
+  if (!order_id) {
+    alert("Order ID not available.");
+    return;
+  }
+
+  if (type === 'order' || type === 'payment') {
+    // Both go to order-related views using order_id
+    let url = '';
+    if(type === 'order') {
+      url = `/orders/staff/orders/${order_id}/edit-order-status`;
+    } else if(type === 'payment') {
+      url = `/orders/staff/orders/${order_id}/view-order-detail`;
+    }
+    window.location.href = url;
+  } else {
+    console.log('Notification clicked for unknown type');
+  }
+}
+
+function clearAllNotifications() {
+  if (confirm('Are you sure you want to clear all notifications?')) {
+    console.log('Attempting to clear notifications...');
+    
+    fetch("{% url 'clear_all_notifications' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Response data:', data);
+      if (data.success) {
+        alert(data.message || 'Notifications cleared successfully');
+        fetchNotifications(); // Refresh the notifications
+      } else {
+        alert('Failed to clear notifications: ' + (data.error || data.message || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Fetch error:', error);
+      alert('An error occurred while clearing notifications: ' + error.message);
+    });
+  }
+}
+
+</script>
+<style>
+  /* Custom Scrollbar Styles */
+  .material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px; /* Adjust if needed */
+  display: inline-block;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+/* Scrollable & Responsive Notification Dropdown */
+#notification-list {
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Notification Item */
+#notification-list li {
+  transition: background-color 0.3s ease;
+  color: black !important;
+  text-decoration: none !important;
+  display: block;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+/* On hover effect */
+#notification-list li:hover {
+  background-color: #f5f5f5;
+}
+
+/* Notification message */
+#notification-list h6 {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Timestamp styling */
+#notification-list small {
+  font-size: 0.75rem;
+}
+
+/* Custom scrollbar - minimal and elegant */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+/* Container UL */
+#notification-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+/* Each list item */
+#notification-list li {
+  list-style: none;
+  transition: background-color 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+/* Anchor inside li (clickable notification) */
+#notification-list li a {
+  display: block;
+  color: black !important;
+  text-decoration: none !important;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+/* On hover, add a light background */
+#notification-list li a:hover {
+  background-color: #f5f5f5;
+}
+
+/* Notification Message Text */
+#notification-list h6 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #212529;
+}
+
+/* Timestamp */
+#notification-list small {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Unread notifications */
+#notification-list .bg-light {
+  background-color: #f8f9fa !important;
+}
+
+/* Red badge (notification count) */
+#notification-count {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  vertical-align: top;
+  margin-left: 0.25rem;
+  display: inline-block;
+}
+
+/* Avatar and icon */
+#notification-list .avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+  border-radius: 50%;
+}
+
+/* Clear all button styles */
+.clear-all-btn {
+  background: none;
+  border: none;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-all-btn:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: scale(1.1);
+}
+
+.clear-all-btn:active {
+  transform: scale(0.95);
+}
+
+/* Notification header */
+.notification-header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+}
+</style>
+<script>
+let previousUnreadCount = 0;
+
+function fetchNotifications() {
+  fetch("{% url 'get_staff_notifications' %}")
+    .then(response => response.json())
+    .then(data => {
+      const notificationList = document.getElementById('notification-list');
+      const notificationCount = document.getElementById('notification-count');
+      const notificationHeader = document.getElementById('notification-header');
+
+      const notifications = data.notifications;
+      const unreadCount = data.unread_count;
+
+      // Update notification count
+      notificationCount.textContent = unreadCount > 0 ? unreadCount : '';
+      notificationCount.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+
+      // Clear ALL existing content in the notification list
+      notificationList.innerHTML = '';
+
+      // Re-add the header
+      const headerLi = document.createElement('li');
+      headerLi.className = 'notification-header border-bottom pb-2 mb-2';
+      headerLi.id = 'notification-header';
+      headerLi.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center px-2">
+          <h6 class="text-sm mb-0 text-dark fw-bold">Notifications</h6>
+          <button class="btn btn-sm p-1 clear-all-btn" id="clearAllBtn" onclick="clearAllNotifications()" title="Clear all notifications">
+            <i class="material-symbols-rounded text-danger" style="font-size: 18px;">delete</i>
+          </button>
+        </div>`;
+
+      if (notifications.length === 0) {
+        // Hide header when no notifications
+        headerLi.style.display = 'none';
+        
+        // Add no notifications message
+        const noNotificationsLi = document.createElement('li');
+        noNotificationsLi.className = 'px-3 py-3 text-center';
+        noNotificationsLi.id = 'no-notifications';
+        noNotificationsLi.innerHTML = `
+          <div class="d-flex flex-column align-items-center justify-content-center">
+            <span class="mb-2" style="font-size: 1.5rem;">🔔</span>
+            <h6 class="text-sm text-muted mb-0">No new notifications</h6>
+          </div>`;
+        
+        notificationList.appendChild(headerLi);
+        notificationList.appendChild(noNotificationsLi);
+      } else {
+        // Show header when there are notifications
+        headerLi.style.display = 'block';
+        notificationList.appendChild(headerLi);
+        
+        // Add each notification
+        notifications.forEach(n => {
+          const li = document.createElement('li');
+          li.className = 'mb-1';
+          
+          // Determine emoji based on type
+          let emoji = '🔔';
+          if (n.type === 'order') emoji = '🍽️';
+          if (n.type === 'payment') emoji = '💵';
+          
+          // Use the correct ID based on notification type
+          let clickId = n.order_id || n.payment_id || '';
+          
+          li.innerHTML = `
+             <a class="dropdown-item p-3 d-flex align-items-start" href="#" 
+              onclick="handleNotificationClick('${n.type}', '${clickId}'); return false;">
+              <span class="me-3" style="font-size: 1.5rem;">${emoji}</span>
+              <div class="d-flex flex-column">
+                <h6 class="text-sm mb-1">${n.message}</h6>
+                <small class="text-secondary"><i class="fa fa-clock me-1"></i>${new Date(n.created_at).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false
+                }).replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2')}</small>
+              </div>
+            </a>`;
+          notificationList.appendChild(li);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching notifications:', error);
+    });
+}
+
+
+// Automatically fetch every 5s
+setInterval(fetchNotifications, 5000);
+fetchNotifications();
+// When bell is clicked, mark notifications as read
+document.getElementById('notificationDropdown').addEventListener('click', () => {
+  fetch("{% url 'mark_staff_notifications_read' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken")
+    }
+  }).then(() => fetchNotifications()); // Refresh after marking as read
+});
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const trimmed = cookie.trim();
+      if (trimmed.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+</script>

@@ -131,24 +131,27 @@ def update_category(request, id):
 @user_passes_test(lambda u: u.is_superuser, login_url='/login/')
 def delete_category(request, id):
     category = get_object_or_404(Category, id=id)
-    
+    menu_items = category.menu_items.all()  # related_name in ForeignKey
+
     if request.method == 'POST':
-        try:
-            category_name = category.name
-            # Check if category has any menu items
-            if category.menu_items.exists():
-                messages.error(request, f"Cannot delete '{category_name}' because it has menu items assigned")
-                return redirect('category:available_categories')
-                
-            category.delete()
-            messages.success(request, f"Category '{category_name}' deleted successfully!")
-        except Exception as e:
-            messages.error(request, f"Error deleting category: {str(e)}")
-        
+        category_name = category.name
+
+        # Delete the menu items first, then the category
+        menu_items.delete()
+        category.delete()
+
+        messages.success(request, f"Category '{category_name}' and its menu items were deleted successfully!")
         return redirect('category:available_categories')
-    
+
     return render(request, 'categories/confirm_delete.html', {
-        'page': 'Confirm Delete',
         'category': category,
+        'has_menu_items': menu_items.exists(),
+        'menu_items': menu_items,
         'current_section': 'Categories / Delete Category'
     })
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/login/')
+def clear_all_categories(request):
+    Category.objects.all().delete()  # This will also delete associated tables if models.CASCADE is set
+    messages.success(request, "All Categories and their associated menu-items have been deleted.")
+    return redirect('category:available_categories')

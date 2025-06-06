@@ -295,3 +295,16 @@ def table_detail(request, table_id):
         'page': f'Table {table.table_number} Details',
         'current_section': 'Table Detail',
     })
+
+from django.views.decorators.http import require_POST
+@admin_required
+def clear_all_tables(request):
+    Table.objects.all().delete()
+    messages.success(request, "All tables have been deleted.")
+    return redirect('table:available_tables')
+
+@admin_required
+def clear_all_rooms(request):
+    Room.objects.all().delete()  # This will also delete associated tables if models.CASCADE is set
+    messages.success(request, "All rooms and their associated tables have been deleted.")
+    return redirect('table:available_rooms')

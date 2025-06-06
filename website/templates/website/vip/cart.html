@@ -1,0 +1,357 @@
+{% extends 'website/vip/base.html' %}
+{% load static %}
+
+{% block content %}
+{% if messages %}
+<div class="position-fixed end-0 mt-5" style="z-index: 9999; top: 70px;">
+    {% for message in messages %}
+    <div class="alert alert-dismissible fade show mx-3
+                {% if message.tags == 'success' %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}" 
+         role="alert">
+        <span class="text-white">{{ message }}</span>
+        <button type="button" class="btn-close text-white" data-bs-dismiss="alert" aria-label="Close">
+            <i class="material-symbols-rounded">close</i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<div class="container mt-5">
+    <div class="row justify-content-center gx-4">
+
+        <!-- Left: Cart Items -->
+        <div class="col-md-7 mb-4">
+            <div class="p-4 rounded-3 shadow-sm bg-white">
+                <h4 class="mb-4 pb-2 border-bottom">Your Cart Items</h4>
+                {% if cart_items %}
+                <div class="mb-3 text-end">
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm fw-semibold"
+                                        id="emptyCartBtn"
+                                        data-action="vip_empty_cart">
+                                    <i class="bi bi-trash me-1"></i> Empty Cart
+                                </button>
+                            </div>
+                    <div class="cart-items-container">
+                        <!-- Empty Cart Button -->
+                            
+
+                        {% for cart_item in cart_items %}
+                        <div class="cart-item d-flex justify-content-between align-items-center py-3 border-bottom" data-item-id="{{ cart_item.item.id }}">
+                            <!-- Item Info -->
+                            <div class="d-flex align-items-center">
+                                <!-- Image -->
+                                <div class="cart-item-img-container me-3" style="max-height: 400px; overflow-y: auto;">
+                                    {% if cart_item.item.image %}
+                                        <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" class="cart-item-img">
+                                    {% else %}
+                                        <img src="{% static 'images/placeholder.png' %}" alt="No image" class="cart-item-img">
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Name and Price -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">{{ cart_item.item.name }}</h5>
+                                    <p class="mb-0 text-muted small">Rs. {{ cart_item.item.price }} × {{ cart_item.quantity }}</p>
+                                    <p class="mb-0 text-success small fw-bold">Rs. {% widthratio cart_item.item.price 1 cart_item.quantity %}</p>
+                                </div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="d-flex align-items-center">
+
+                            <div class="quantity-controls me-3">
+                                <div class="d-flex flex-column align-items-center">
+                                    <!-- Fix: data-action should match the view name -->
+                                    <button class="quantity-btn increase"
+                                            data-action="vip_increase_quantity" 
+                                            data-item-id="{{ cart_item.item.id }}">
+                                        <i class="material-symbols-rounded">add</i>
+                                    </button>
+                                    <span class="quantity-display my-1 fw-bold">{{ cart_item.quantity }}</span>
+                                    <button class="quantity-btn decrease"
+                                            data-action="vip_decrease_quantity" 
+                                            data-item-id="{{ cart_item.item.id }}">
+                                        <i class="material-symbols-rounded">remove</i>
+                                    </button>
+                                </div>
+                                </div>
+                                <!-- Remove Button -->
+                                
+                                    <button type="submit" class="remove-btn" data-action="vip_remove_item" 
+                                    data-item-id="{{ cart_item.item.id }}">
+                                        <i class="material-symbols-rounded">Delete</i>
+                                    </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-cart text-center py-5">
+                        <i class="bi bi-cart-x display-4 text-muted mb-3"></i>
+                        <p class="text-muted mb-4">Your cart is empty</p>
+                        <a href="{% url 'menu_for_vipcustomers' %}" class="btn btn-dark">Browse Menu</a>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- After your cart items listing, before closing the div with cart items -->
+
+            {% if current_order %}
+    <div class="mt-3 text-end">
+            <a href="{% url 'vip_order_detail' current_order.id %}" class="btn btn-primary">
+                View Order
+            </a>
+        </div>
+    {% endif %}
+
+
+        </div>
+
+        <!-- Right: Order Form -->
+        <div class="col-md-5">
+            <div class="p-4 rounded-3 shadow-sm bg-white sticky-top" style="top: 20px;">
+                <h4 class="mb-4 pb-2 border-bottom">Order Summary</h4>
+                <form method="post" action="{% url 'vip_show_confirm_order' %}" id="orderForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="customer_name" class="form-label fw-semibold">Your Name</label>
+                        <input type="text" class="form-control py-2" id="customer_name" name="customer_name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="room_number" class="form-label fw-semibold">Room Number</label>
+                        <select class="form-control py-2" id="room_number" name="room_number" required>
+                            <option value="" >Select a Room</option>
+                            {% for room in available_rooms %}
+                            {% if room.room_type == 'VIP' %}
+                            <option value="{{ room.name }}">
+                                {{ room.name }} ({{ room.get_room_type_display }})
+                            </option>
+                            {% endif %}
+                            {% empty %}
+                            <option value="">No rooms available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="table_number" class="form-label fw-semibold">Table Number</label>
+                         <input type="number" name="table_number" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="special_request" class="form-label fw-semibold">Special Request</label>
+                        <textarea class="form-control" id="special_request" name="special_requests" rows="3" placeholder="Write any special instructions here..."></textarea>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="rush_order" name="rush_order" value="true">
+                        <label class="form-check-label fw-semibold" for="rush_order">
+                            Rush Order (extra priority)
+                        </label>
+                        <div class="text-danger small mt-1" id="rushOrderWarning" >
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                            For rush order, you need to pay an additional 5% on service tax.
+                        </div>
+                    </div>
+                    <div class="order-summary border-top pt-3">
+                        {# Display Subtotal #}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Items ({{ total_quantity }}):</span>
+                            <span>Rs. {{ subtotal }}</span>
+                        </div>
+
+                        {# 13% VAT #}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">VAT (13%):</span>
+                            <span>
+                                Rs. {% widthratio subtotal 100 13 %}
+                            </span>
+                        </div>
+
+                        {# 10% Service Tax #}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Service Tax (20%):</span>
+                            <span>
+                                Rs. {% widthratio subtotal 100 20 %}
+                            </span>
+                        </div>
+
+                        {# Final Total = subtotal + VAT + Service Tax #}
+                        <div class="d-flex justify-content-between fw-bold fs-5 mt-3 pt-2 border-top">
+                            <span>Total:</span>
+                            <span class="text-dark">
+                                Rs. {% widthratio subtotal 100 123 %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-dark w-100 mt-4 py-2 fw-bold" id="submitBtn">
+                        Place Order <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </form>
+                <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                    <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header bg-success text-white">
+                            <strong class="me-auto">Success</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" id="toastMessage">
+                            <!-- Message will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Toast handler
+    function showToast(message, success = true) {
+        const toastElement = document.getElementById("cartToast");
+        const toastMessage = document.getElementById("toastMessage");
+        toastMessage.innerText = message;
+        const toastHeader = toastElement.querySelector('.toast-header');
+
+        toastHeader.classList.remove('bg-success', 'bg-danger');
+        toastHeader.classList.add(success ? 'bg-success' : 'bg-danger');
+
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+    }
+
+    // Empty cart functionality
+    const emptyCartBtn = document.getElementById('emptyCartBtn');
+    if (emptyCartBtn) {
+        emptyCartBtn.addEventListener('click', function () {
+            const action = this.dataset.action;
+            
+            fetch("{% url 'vip_empty_cart' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ action: action })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network error');
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    showToast('Failed to empty cart.', false);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                showToast('Something went wrong.', false);
+            });
+        });
+    }
+});
+</script>
+
+<script>
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function (alert) {
+            // Use Bootstrap's built-in dismiss method
+            const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+            bsAlert.close();
+        });
+    }, 5000); // 5000ms = 5 seconds
+</script>
+
+<style>
+.cart-item-img-container {
+    width: 60px;
+    height: 60px;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.cart-item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.quantity-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.quantity-btn:hover {
+    color: #000;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.remove-btn:hover {
+    color: #a71d2a;
+}
+
+/* Spinner alignment */
+#tableSpinner {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Disabled state for select */
+select:disabled {
+    background-color: #f8f9fa;
+    opacity: 1;
+}
+</style>
+<style>
+    /* Cart Items Scrollable Container */
+    .cart-items-container {
+        max-height: 60vh; /* Adjust this value as needed */
+        overflow-y: auto;
+        padding-right: 8px; /* Space for scrollbar */
+        scrollbar-width: thin; /* For Firefox */
+    }
+    
+    /* Custom scrollbar for Webkit browsers */
+    .cart-items-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .cart-items-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .cart-items-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .cart-items-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    /* ... other styles ... */
+</style>
+
+{% endblock %}

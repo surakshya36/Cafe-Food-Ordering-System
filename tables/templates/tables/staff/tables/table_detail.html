@@ -37,25 +37,29 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Order Status:</th>
-                    <td>
-                        {% if current_order %}
-                            {{ current_order.get_order_status_display }}
-                        {% else %}
-                            <span class="text-muted">No active order</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Payment Status:</th>
-                    <td>
-                        {% if current_order %}
-                            {{ current_order.get_payment_status_display }}
-                        {% else %}
-                            <span class="text-muted">No payment</span>
-                        {% endif %}
-                    </td>
-                </tr>
+    <th>Order Status:</th>
+    <td>
+        {% if current_order %}
+            {{ current_order.get_status_display }}
+        {% else %}
+            <span class="text-muted">No active order</span>
+        {% endif %}
+    </td>
+</tr>
+<tr>
+    <th>Payment Status:</th>
+    <td>
+        {% if current_order %}
+            {% if current_order.is_paid %}
+                <span class="badge bg-success">Paid</span>
+            {% else %}
+                <span class="badge bg-warning text-dark">Unpaid</span>
+            {% endif %}
+        {% else %}
+            <span class="text-muted">No payment</span>
+        {% endif %}
+    </td>
+</tr>
             </table>
 
             <!-- Back Button -->
