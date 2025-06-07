@@ -177,4 +177,3 @@ AUTHENTICATION_BACKENDS = [
 # DEBUG = True 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 week (seconds)
 SESSION_SAVE_EVERY_REQUEST = True  # optional, saves session expiry date on every request
-

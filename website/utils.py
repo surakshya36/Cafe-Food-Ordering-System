@@ -1,18 +1,13 @@
-import requests
-from django.conf import settings
+# utils.py
 
-def verify_khalti_payment(token, amount):
-    url = "https://khalti.com/api/v2/payment/verify/"
-    key = settings.KHALTI_SANDBOX_SECRET_KEY  # Always use sandbox key
+import hmac
+import hashlib
+import base64
 
-    payload = {
-        "token": token,
-        "amount": amount
-    }
+def generate_esewa_signature(message: str, secret_key: str = "8gBm/:&EnhH.1/q") -> str:
+    secret_key_bytes = secret_key.encode('utf-8')
+    message_bytes = message.encode('utf-8')
 
-    headers = {
-        "Authorization": f"Key {key}"
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()
+    hmac_sha256 = hmac.new(secret_key_bytes, message_bytes, hashlib.sha256)
+    digest = hmac_sha256.digest()
+    return base64.b64encode(digest).decode('utf-8')

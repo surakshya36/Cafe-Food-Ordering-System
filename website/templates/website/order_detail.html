@@ -191,10 +191,14 @@
                 {% endif %}
                 <!-- Your "Make Payment" button -->
                 {% if not order.is_paid %}
-                <button id="khalti-payment-btn" class="btn btn-success">
+                 <a href="{% url 'esewa_payment_request_normal' order.id %}" class="btn btn-outline-secondary me-2">
                     <i class="material-symbols-rounded align-middle">payment</i>
                     Make Payment
-                </button>
+                </a>
+                <!-- <button id="khalti-payment-btn" class="btn btn-success">
+                    <i class="material-symbols-rounded align-middle">payment</i>
+                    Make Payment
+                </button> -->
                 {% endif %}
             </div>
         </div>
@@ -202,81 +206,6 @@
     </div>
     
 </div>
-
-{% block extra_scripts %}
-
-<script src="https://khalti.com/static/khalti-checkout.js"></script>
-
-<script>
-// Fake/mock Khalti checkout object
-class MockKhaltiCheckout {
-    constructor(config) {
-        this.config = config;
-    }
-
-    show({ amount }) {
-        // Simulate a small delay
-        setTimeout(() => {
-            const fakePayload = {
-                token: "fake-token-123456",
-                amount: amount,
-            };
-
-            // Simulate success callback
-            alert("Simulated Payment: Success ✅");
-            this.config.eventHandler.onSuccess(fakePayload);
-        }, 1000);
-    }
-}
-
-document.getElementById("khalti-payment-btn").addEventListener("click", function () {
-    const amountInPaisa = Math.round({{ grand_total|floatformat:2 }} * 100);
-
-    const mockKhaltiConfig = {
-        publicKey: "mock-public-key",
-        productIdentity: "{{ order.id }}",
-        productName: "Order #{{ order.id }}",
-        productUrl: window.location.href,
-        eventHandler: {
-            onSuccess(payload) {
-                // Send to your backend verification view (as if it's a real token)
-                fetch("{% url 'khalti_payment_verify' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": "{{ csrf_token }}",
-                    },
-                    body: JSON.stringify({
-                        token: payload.token,
-                        amount: payload.amount,
-                        order_id: {{ order.id }}
-                    }),
-                })
-                .then(res => res.json())
-                .then(result => {
-                    alert(result.status === "success" ? "Mock payment verified ✅" : "Mock payment failed ❌");
-                    window.location.href = "../../my-order/";
-                })
-                .catch(() => {
-                    alert("Mock payment verification error.");
-                    window.location.href = "./../my-order/";
-                });
-            },
-            onError(error) {
-                console.error("Mock Payment Error:", error);
-            },
-            onClose() {
-                console.log("Mock widget closed."); 
-            },
-        },
-        paymentPreference: [],
-    };
-
-    const checkout = new MockKhaltiCheckout(mockKhaltiConfig);
-    checkout.show({ amount: amountInPaisa });
-});
-</script>
-{% endblock %}
 
 
 {% endblock %}

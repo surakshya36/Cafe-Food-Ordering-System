@@ -57,10 +57,13 @@ urlpatterns = [
     path('vip-api/notifications/unread/', views.vip_fetch_unread_notifications, name='vip_fetch_unread_notifications'),
 
 
-    path('khalti-request/<int:order_id>/', views.khalti_payment_request, name='khalti_payment_request'),
-    path('payment/khalti/verify/', views.khalti_payment_verify, name='khalti_payment_verify'),
-    path('payment/vip/khalti/verify/', views.khalti_payment_verify_vip, name='khalti_payment_verify_vip'),
+    # path('khalti-request/<int:order_id>/', views.khalti_payment_request, name='khalti_payment_request'),
+    # path('payment/khalti/verify/', views.khalti_payment_verify, name='khalti_payment_verify'),
+    # path('payment/vip/khalti/verify/', views.khalti_payment_verify_vip, name='khalti_payment_verify_vip'),
 
+    path('payment/esewa/success/normal/', views.esewa_normal_payment_success, name='esewa_normal_payment_success'),
+    path('payment/esewa/failure/normal/', views.esewa_normal_payment_failure, name='esewa_normal_payment_failure'),
+    path('payment/esewa/request/normal/<int:order_id>/', views.esewa_payment_request_normal, name='esewa_payment_request_normal'),
 
 
 

@@ -716,7 +716,10 @@ def my_orders(request):
         request.session.create()
 
     session_key = request.session.session_key
-    orders = Order.objects.filter(session_key=session_key).order_by('-created_at')
+    orders = Order.objects.filter(
+        session_key=session_key,
+        order_type='normal'
+    ).order_by('-created_at')
 
     total_orders = orders.count()
     total_items = sum(order.items.count() for order in orders)
@@ -1120,128 +1123,128 @@ def vip_get_order_status(request, order_id):
         raise Http404("Order not found.")
     
 
-# payment .. 
-from django.shortcuts import render, get_object_or_404
-from orders.models import Order
-from django.http import JsonResponse
+# # payment .. 
+# from django.shortcuts import render, get_object_or_404
+# from orders.models import Order
+# from django.http import JsonResponse
 
 
-import random
-import string
+# import random
+# import string
 
-def generate_transaction_id():
-    random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-    return f"transaction_{random_part}"
+# def generate_transaction_id():
+#     random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+#     return f"transaction_{random_part}"
 
-def khalti_payment_request(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-    amount_paisa = int(order.total_amount * 100)
+# def khalti_payment_request(request, order_id):
+#     order = get_object_or_404(Order, pk=order_id)
+#     amount_paisa = int(order.total_amount * 100)
 
-    data = {
-        'khalti_public_key': 'mock-public-key',  # No real public key needed now
-        'amount_paisa': amount_paisa,
-        'order_id': order.id,
-    }
-    return JsonResponse(data)
-
-
-
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
-import json
-from orders.models import Order
-from payments.models import Payment
-@csrf_exempt
-def khalti_payment_verify(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        order_id = data.get("order_id")
-        token = data.get("token")
-        amount = data.get("amount")
-
-        order = get_object_or_404(Order, id=order_id)
-
-        if token == "fake-token-123456":
-            # Mark order as paid
-            order.is_paid = True
-            order.save()
-
-            # Create Payment entry
-            transaction_id = generate_transaction_id()
-            payment = Payment.objects.create(
-                order=order,
-                method='MOBILE',
-                amount=amount / 100,
-                transaction_id=transaction_id,
-                status='COMPLETED'
-            )
-
-            # Create Notification 
-            Notification.objects.create(
-                type='payment',
-                message=f"Payment of Rs. {payment.amount} completed for Order #{order.id}.",
-                order=order,
-                payment=payment,
-                metadata={
-                    'order_id': order.id,
-                    'amount': str(payment.amount),
-                    'method': 'Khalti',
-                    'transaction_id': transaction_id
-                }
-            )
-
-            return JsonResponse({"status": "success"})
-        else:
-            return JsonResponse({"status": "fail"})
-
-    return JsonResponse({"status": "invalid"}, status=400)
+#     data = {
+#         'khalti_public_key': 'mock-public-key',  # No real public key needed now
+#         'amount_paisa': amount_paisa,
+#         'order_id': order.id,
+#     }
+#     return JsonResponse(data)
 
 
-@csrf_exempt
-def khalti_payment_verify_vip(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        order_id = data.get("order_id")
-        token = data.get("token")
-        amount = data.get("amount")
 
-        order = get_object_or_404(Order, id=order_id)
+# from django.views.decorators.csrf import csrf_exempt
+# from django.http import JsonResponse, HttpResponseRedirect
+# from django.shortcuts import get_object_or_404, redirect
+# import json
+# from orders.models import Order
+# from payments.models import Payment
+# @csrf_exempt
+# def khalti_payment_verify(request):
+#     if request.method == "POST":
+#         data = json.loads(request.body)
+#         order_id = data.get("order_id")
+#         token = data.get("token")
+#         amount = data.get("amount")
 
-        if token == "fake-token-123456":
-            # Mark order as paid
-            order.is_paid = True
-            order.save()
+#         order = get_object_or_404(Order, id=order_id)
 
-            # Create Payment entry
-            transaction_id = generate_transaction_id()
-            payment = Payment.objects.create(
-                order=order,
-                method='MOBILE',
-                amount=amount / 100,
-                transaction_id=transaction_id,
-                status='COMPLETED'
-            )
+#         if token == "fake-token-123456":
+#             # Mark order as paid
+#             order.is_paid = True
+#             order.save()
 
-            # Create Notification 
-            Notification.objects.create(
-                type='payment',
-                message=f"Payment of Rs. {payment.amount} completed for Order #{order.id}.",
-                order=order,
-                payment=payment,
-                metadata={
-                    'order_id': order.id,
-                    'amount': str(payment.amount),
-                    'method': 'MOBILE',
-                    'transaction_id': transaction_id
-                }
-            )
+#             # Create Payment entry
+#             transaction_id = generate_transaction_id()
+#             payment = Payment.objects.create(
+#                 order=order,
+#                 method='MOBILE',
+#                 amount=amount / 100,
+#                 transaction_id=transaction_id,
+#                 status='COMPLETED'
+#             )
 
-            return JsonResponse({"status": "success"})
-        else:
-            return JsonResponse({"status": "fail"})
+#             # Create Notification 
+#             Notification.objects.create(
+#                 type='payment',
+#                 message=f"Payment of Rs. {payment.amount} completed for Order #{order.id}.",
+#                 order=order,
+#                 payment=payment,
+#                 metadata={
+#                     'order_id': order.id,
+#                     'amount': str(payment.amount),
+#                     'method': 'Khalti',
+#                     'transaction_id': transaction_id
+#                 }
+#             )
 
-    return JsonResponse({"status": "invalid"}, status=400)
+#             return JsonResponse({"status": "success"})
+#         else:
+#             return JsonResponse({"status": "fail"})
+
+#     return JsonResponse({"status": "invalid"}, status=400)
+
+
+# @csrf_exempt
+# def khalti_payment_verify_vip(request):
+#     if request.method == "POST":
+#         data = json.loads(request.body)
+#         order_id = data.get("order_id")
+#         token = data.get("token")
+#         amount = data.get("amount")
+
+#         order = get_object_or_404(Order, id=order_id)
+
+#         if token == "fake-token-123456":
+#             # Mark order as paid
+#             order.is_paid = True
+#             order.save()
+
+#             # Create Payment entry
+#             transaction_id = generate_transaction_id()
+#             payment = Payment.objects.create(
+#                 order=order,
+#                 method='MOBILE',
+#                 amount=amount / 100,
+#                 transaction_id=transaction_id,
+#                 status='COMPLETED'
+#             )
+
+#             # Create Notification 
+#             Notification.objects.create(
+#                 type='payment',
+#                 message=f"Payment of Rs. {payment.amount} completed for Order #{order.id}.",
+#                 order=order,
+#                 payment=payment,
+#                 metadata={
+#                     'order_id': order.id,
+#                     'amount': str(payment.amount),
+#                     'method': 'MOBILE',
+#                     'transaction_id': transaction_id
+#                 }
+#             )
+
+#             return JsonResponse({"status": "success"})
+#         else:
+#             return JsonResponse({"status": "fail"})
+
+#     return JsonResponse({"status": "invalid"}, status=400)
 
 
 from django.contrib.messages import get_messages
@@ -1265,6 +1268,7 @@ def order_status_notifications_view(request):
     notifications = Notification.objects.filter(
         session_key=session_key,
         type='order_Status',
+         order__order_type='normal',
         is_deleted=False
     ).order_by('-created_at')
     
@@ -1296,7 +1300,6 @@ from django.utils import timezone
 @csrf_exempt
 def fetch_unread_notifications(request):
     try:
-        # Ensure session exists, or return no session response
         if not request.session.session_key:
             return JsonResponse({
                 'status': 'no_session',
@@ -1304,14 +1307,14 @@ def fetch_unread_notifications(request):
                 'notifications': []
             })
 
-        # Query notifications by session_key only
+        # Filter only unread, not deleted VIP notifications
         notifications = Notification.objects.filter(
             session_key=request.session.session_key,
             is_read=False,
-            is_deleted=False
+            is_deleted=False,
+            order__order_type='normal'
         )
 
-        # Get notification data for last 10 notifications
         notifications_data = list(notifications.order_by('-created_at')[:10].values(
             'id',
             'message',
@@ -1320,7 +1323,6 @@ def fetch_unread_notifications(request):
             'metadata'
         ))
 
-        # Debug print to console/log
         print(f"Returning unread count (session only): {notifications.count()}")
         print(f"Sample notifications: {list(notifications.values('id', 'message')[:2])}")
 
@@ -1414,3 +1416,114 @@ def vip_fetch_unread_notifications(request):
             'unread_count': 0,
             'notifications': []
         }, status=500)
+
+# esewa 
+from django.shortcuts import render
+from django.http import HttpResponse
+from datetime import datetime
+from .utils import generate_esewa_signature  # If needed
+from django.shortcuts import get_object_or_404, redirect
+from django.utils import timezone
+from django.contrib import messages
+from payments.models import Payment
+from orders.models import Order
+from django.urls import reverse
+
+def esewa_payment_request_normal(request, order_id):
+    order = get_object_or_404(Order, pk=order_id, order_type='normal')
+
+    # Format amounts with exactly 2 decimal places
+    total_amount = "{:.2f}".format(float(order.total_amount))
+    tax_amount = "0.00"
+    service_charge = "0.00"
+    delivery_charge = "0.00"
+
+    transaction_uuid = f"order_{order.id}_{datetime.now().timestamp()}"
+    product_code = 'EPAYTEST'  # Use real code in production
+
+    # Field order matters - must match documentation
+    signed_field_names = 'total_amount,transaction_uuid,product_code'
+    signature_input = f"total_amount={total_amount},transaction_uuid={transaction_uuid},product_code={product_code}"
+
+    signature = generate_esewa_signature(signature_input)
+
+    # Build URLs
+    success_url = request.build_absolute_uri(reverse('esewa_normal_payment_success'))
+    failure_url = request.build_absolute_uri(reverse('esewa_normal_payment_failure'))
+
+    # Create auto-submitting HTML form
+    html_content = f"""
+    <html>
+    <body onload="document.forms[0].submit()">
+        <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+            <input type="hidden" name="amount" value="{total_amount}">
+            <input type="hidden" name="tax_amount" value="{tax_amount}">
+            <input type="hidden" name="total_amount" value="{total_amount}">
+            <input type="hidden" name="transaction_uuid" value="{transaction_uuid}">
+            <input type="hidden" name="product_code" value="{product_code}">
+            <input type="hidden" name="product_service_charge" value="{service_charge}">
+            <input type="hidden" name="product_delivery_charge" value="{delivery_charge}">
+            <input type="hidden" name="success_url" value="{success_url}">
+            <input type="hidden" name="failure_url" value="{failure_url}">
+            <input type="hidden" name="signed_field_names" value="{signed_field_names}">
+            <input type="hidden" name="signature" value="{signature}">
+        </form>
+    </body>
+    </html>
+    """
+
+    return HttpResponse(html_content)
+import base64
+import json
+
+def esewa_normal_payment_success(request):
+    encoded_data = request.GET.get('data')
+    if not encoded_data:
+        return HttpResponse("Missing payment data.", status=400)
+
+    try:
+        decoded_json = base64.b64decode(encoded_data).decode('utf-8')
+        data = json.loads(decoded_json)
+    except Exception as e:
+        return HttpResponse(f"Invalid payment data: {str(e)}", status=400)
+
+    transaction_id = data.get('transaction_uuid') or data.get('transaction_uuid') or data.get('transaction_code')
+    amount = data.get('total_amount')
+
+    if not transaction_id or not amount:
+        return HttpResponse("Missing required fields in payment data.", status=400)
+
+    # Extract order ID from transaction UUID
+    try:
+        order_id = int(transaction_id.split('_')[1])
+    except:
+        return HttpResponse("Invalid transaction format.", status=400)
+
+    order = get_object_or_404(Order, id=order_id, order_type='normal')
+
+    if Payment.objects.filter(transaction_id=transaction_id).exists():
+        messages.error(request, "Duplicate transaction.")
+        return redirect('my_orders')
+
+    Payment.objects.create(
+        order=order,
+        payment_reference=f"NORMAL_{transaction_id}",
+        transaction_id=transaction_id,
+        amount=amount,
+        method='ESEWA',
+        status='COMPLETED',
+        completed_at=timezone.now(),
+        notes='Normal order paid via eSewa',
+        metadata=data
+    )
+
+    order.is_paid = True
+    order.save()
+
+    messages.success(request, f"Payment successful! Order #{order.id} is now marked as paid.")
+    return redirect('my_orders')
+
+
+def esewa_normal_payment_failure(request):
+    messages.error(request, "Payment failed or was cancelled for your normal order.")
+    return redirect('my_orders')  # Replace with the actual fallback view name
